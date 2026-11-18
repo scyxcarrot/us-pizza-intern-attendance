@@ -1,0 +1,120 @@
+rules_version = '2';
+// Security rules for the US Pizza intern attendance system.
+// Paste into Firebase console → Firestore Database → Rules → Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    // Gmail of the caller: from Google sign-in, or from the PIN server function's custom token
+    function me() {
+      return request.auth.token.get('email_verified', false) == true
+        ? request.auth.token.email.lower()
+        : request.auth.token.get('gmail', '');
+    }
+    function isAdmin() { return signedIn() && me() != '' && exists(/databases/$(database)/documents/admins/$(me())); }
+    function ownRecordId(id) { return id.split('__')[0] == me(); }
+    // Approved (active) intern. Accounts created before approvals existed count as active.
+    function active() { return signedIn() && me() != '' && exists(/databases/$(database)/documents/accounts/$(me()))
+                          && get(/databases/$(database)/documents/accounts/$(me())).data.get('status', 'active') == 'active'; }
+    // Today's date in Malaysia (UTC+8), e.g. "2026-11-18"
+    function pad(n) { return n < 10 ? '0' + string(n) : string(n); }
+    function todayMY() { let t = request.time + duration.value(8, 'h'); return string(t.year()) + '-' + pad(t.month()) + '-' + pad(t.day()); }
+
+    // Admin list: one document per admin, id = their Gmail (lowercase). Add the first one in the console.
+    match /admins/{email} {
+      allow get: if signedIn() && (email == me() || isAdmin());
+      allow list, write: if isAdmin();
+    }
+
+    // Shared settings (start time, lunch, holidays). Everyone signed in reads; admins change.
+    // config/adminPin (the optional extra Admin-tab PIN) is readable by admins only.
+    match /config/{doc} {
+      allow read: if signedIn() && (doc != 'adminPin' || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Pre-approved intern Gmails (added by admins)
+    match /invites/{email} {
+      allow get: if signedIn() && (email == me() || isAdmin());
+      allow list, write: if isAdmin();
+    }
+
+    // PIN hashes: only the server functions (Admin SDK) can touch these.
+    match /pins/{email} { allow read, write: if false; }
+
+    match /accounts/{email} {
+      allow get: if signedIn() && (email == me() || isAdmin());
+      allow list: if isAdmin();
+      // Google users create their own account on first sign-in (PIN accounts are created by the server)
+      // New accounts start as 'pending' unless an admin pre-approved the Gmail (invites)
+      allow create: if signedIn() && email == me() && request.resource.data.email == me()
+                    && request.auth.token.get('email_verified', false) == true
+                    && (request.resource.data.status == 'pending'
+                        || (request.resource.data.status == 'active' && exists(/databases/$(database)/documents/invites/$(me()))));
+      // Interns can edit their own details, but not their name or internship dates
+      allow update: if isAdmin() || (signedIn() && email == me()
+                    && !request.resource.data.diff(resource.data).affectedKeys()
+                         .hasAny(['email', 'name', 'startDate', 'endDate', 'signIn', 'createdAt', 'status', 'approvedAt', 'consentAt']));
+      allow delete: if isAdmin();
+    }
+
+    // A stamp is OK if it is unchanged, absent, or new and written with the server's clock.
+    function stampOk(k) {
+      return !(k in request.resource.data.events)
+        || (resource != null && ('events' in resource.data) && (k in resource.data.events)
+            && request.resource.data.events[k] == resource.data.events[k])
+        || request.resource.data.events[k].srv == request.time;
+    }
+    function keepsOldStamps() {
+      return resource == null || !('events' in resource.data)
+        || request.resource.data.events.keys().hasAll(resource.data.events.keys());
+    }
+
+    // Daily records: id = "<gmail>__<YYYY-MM-DD>"
+    match /records/{id} {
+      allow get: if signedIn() && (isAdmin() || ownRecordId(id));
+      allow list: if isAdmin() || (signedIn() && resource.data.internId == me());
+      // Interns can add new stamps for themselves but can't edit or delete earlier ones
+      // (changes go through correction requests). Admins can do anything.
+      // Leave days are only written by admins (approving a leave request)
+      // Interns can only write TODAY's record (Malaysia time), and only once approved
+      allow create, update: if isAdmin() || (active() && id == me() + '__' + todayMY()
+          && request.resource.data.date == todayMY()
+          && request.resource.data.internId == me()
+          && request.resource.data.get('leave', null) == (resource == null ? null : resource.data.get('leave', null))
+          && ('events' in request.resource.data) && keepsOldStamps()
+          && stampOk('clockIn') && stampOk('lunchOut') && stampOk('lunchIn') && stampOk('clockOut'));
+      // Interns may only withdraw their own leave
+      allow delete: if isAdmin() || (signedIn() && ownRecordId(id) && resource.data.get('leave', null) != null);
+    }
+
+    match /corrections/{id} {
+      allow get, list: if isAdmin() || (signedIn() && resource.data.internId == me());
+      allow create: if active() && request.resource.data.internId == me()
+                    && request.resource.data.status == 'pending';
+      // Interns can only cancel their own pending request
+      allow update: if isAdmin() || (signedIn() && resource.data.internId == me()
+                    && resource.data.status == 'pending' && request.resource.data.status == 'cancelled'
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'decidedAt']));
+      allow delete: if isAdmin();
+    }
+
+    // Leave requests: interns apply, admins approve / reject. Interns can cancel their own.
+    match /leaveRequests/{id} {
+      allow get, list: if isAdmin() || (signedIn() && resource.data.internId == me());
+      allow create: if active() && request.resource.data.internId == me()
+                    && request.resource.data.status == 'pending';
+      allow update: if isAdmin() || (signedIn() && resource.data.internId == me()
+                    && resource.data.status in ['pending', 'approved'] && request.resource.data.status == 'cancelled'
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'decidedAt']));
+      allow delete: if isAdmin();
+    }
+
+    // MC photos / PDFs (compressed, stored as data URLs)
+    match /mcfiles/{id} {
+      allow get: if signedIn() && (isAdmin() || resource.data.internId == me());
+      allow create: if active() && request.resource.data.internId == me();
+      allow delete: if isAdmin();
+    }
+  }
+}

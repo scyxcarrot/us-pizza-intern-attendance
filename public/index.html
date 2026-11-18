@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>US Pizza Intern Attendance</title>
+<meta name="theme-color" content="#B91C1C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="USP Attendance">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script>window.fbReady = new Promise(r => { window.__fbResolve = r; });</script>
+<script type="module" src="/firebase-adapter.js" onerror="window.__fbResolve && window.__fbResolve({ok:false, reason:'config'})"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#B91C1C; --red-d:#991B1B; --red-soft:#FCE8EA;
+  --cream:#FFF7EC; --paper:#FFFFFF; --ink:#211B17; --muted:#6F655D; --line:#EADFD2;
+  --mustard:#E7A532; --mustard-soft:#FFF1D6; --basil:#2E7D4F; --basil-soft:#E3F3E9;
+  --blue:#2457C5; --blue-soft:#E7EEFC;
+  --r:14px; --shadow:0 1px 0 rgba(33,27,23,.04),0 6px 18px -10px rgba(33,27,23,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--cream);color:var(--ink);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Bricolage Grotesque",Inter,sans-serif;margin:0;letter-spacing:-.01em}
+h2{font-size:20px;font-weight:800}
+h3{font-size:16px;font-weight:700}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* header */
+/* header: values taken from intern-intake-us-pizza.vercel.app (.dl-side-head) */
+.top{position:sticky;top:0;z-index:30;background:#B91C1C;color:#fff;height:calc(60px + env(safe-area-inset-top));min-height:60px;padding:env(safe-area-inset-top) calc(12px + env(safe-area-inset-right)) 0 calc(12px + env(safe-area-inset-left));box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:Inter,"Inter Fallback",system-ui,sans-serif}
+.brand{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto}
+.logo{display:grid;place-items:center;width:32px;height:32px;flex:0 0 auto;border-radius:50%;background:#fff;color:#B91C1C;font-weight:800;font-size:10px}
+.brand-titles{min-width:0}
+.brand-s{display:block;font-size:10px;font-weight:400;line-height:1.1;opacity:.85;white-space:nowrap}
+.brand-t{display:block;font-size:15px;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clock{text-align:right;flex:0 0 auto}
+#nowTime{font-size:15px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums}
+#nowDate{font-size:10px;line-height:1.1;opacity:.85;white-space:nowrap}
+@media(max-width:420px){#nowDate{display:none}}
+
+.tabs{display:flex;gap:4px;padding:10px 14px 0;max-width:960px;margin:0 auto}
+.tab{flex:1;border:0;background:transparent;padding:10px 8px;border-radius:10px 10px 0 0;font-weight:600;color:var(--muted);border-bottom:3px solid transparent}
+.tab[aria-selected="true"]{color:var(--red);border-bottom-color:var(--red);background:var(--paper)}
+main{max-width:960px;margin:0 auto;padding:0 14px 60px}
+.banner{max-width:932px;margin:10px auto 0;padding:10px 14px;border-radius:10px;background:var(--mustard-soft);border:1px solid #F1D49A;font-size:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-top:14px;box-shadow:var(--shadow)}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+label.f{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+label.f:first-child{margin-top:0}
+.req{color:var(--red)}
+.inp{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--red)}
+.inp.err{border-color:var(--red);background:#FFF8F8}
+.hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:700;background:var(--red);color:#fff}
+.btn:hover{background:var(--red-d)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.sm{padding:7px 11px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.link{border:0;background:none;color:var(--red);font-weight:600;padding:0;text-decoration:underline;text-underline-offset:3px}
+
+.who{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--red-soft);color:var(--red);display:grid;place-items:center;font-weight:800;font-family:"Bricolage Grotesque"}
+.who-l{display:flex;gap:10px;align-items:center}
+.who-n{font-weight:700}
+.who-s{font-size:13px;color:var(--muted)}
+
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-idle{background:#F1ECE6;color:var(--muted)}
+.b-work{background:var(--basil-soft);color:var(--basil)}
+.b-lunch{background:var(--mustard-soft);color:#A66A00}
+.b-done{background:var(--blue-soft);color:var(--blue)}
+.b-leave{background:var(--red-soft);color:var(--red)}
+
+.datebox{padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#FBF8F4;font-weight:600}
+.gpsline{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:12px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+
+/* punches */
+.punches{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:680px){.punches{grid-template-columns:1fr 1fr}}
+.punch{position:relative;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 12px 12px;text-align:left;min-height:118px;display:flex;flex-direction:column;gap:4px;transition:transform .08s,border-color .15s,background .15s}
+.punch .step{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.punch .p-label{font-family:"Bricolage Grotesque";font-weight:800;font-size:18px;line-height:1.1}
+.punch .p-time{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:auto}
+.punch .p-where{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.punch.ready{border-color:var(--red);background:var(--red);color:#fff;box-shadow:0 8px 20px -10px var(--red)}
+.punch.ready .step,.punch.ready .p-where{color:rgba(255,255,255,.85)}
+.punch.ready:hover{background:var(--red-d)}
+.punch.ready:active{transform:scale(.98)}
+.punch.done{background:var(--basil-soft);border-color:#BFE1CC}
+.punch.done .step{color:var(--basil)}
+.punch:disabled:not(.done){opacity:.5;cursor:not-allowed}
+.punch.done:disabled{cursor:default}
+.punch .tick{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--basil);color:#fff;display:grid;place-items:center;font-size:12px}
+.msg{margin-top:12px;font-size:14px;min-height:0}
+.msg:empty{display:none}
+.msg.warn{background:var(--mustard-soft);border:1px solid #F1D49A;padding:10px 12px;border-radius:10px}
+.msg.bad{background:var(--red-soft);border:1px solid #F3BFC6;padding:10px 12px;border-radius:10px;color:var(--red-d)}
+.msg.ok{background:var(--basil-soft);border:1px solid #BFE1CC;padding:10px 12px;border-radius:10px;color:var(--basil)}
+.msg .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:#FBF8F4;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .k{font-size:12px;color:var(--muted);font-weight:600}
+.stat .v{font-family:"Bricolage Grotesque";font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;margin-top:2px}
+.stat .s{font-size:12px;color:var(--muted)}
+.stat.alert{background:var(--red-soft);border-color:#F3BFC6}
+.stat.alert .v{color:var(--red)}
+.stat.warnc{background:var(--mustard-soft);border-color:#F1D49A}
+
+.timeline{list-style:none;margin:14px 0 0;padding:0}
+.timeline li{display:grid;grid-template-columns:86px 1fr;gap:10px;padding:10px 0;border-top:1px dashed var(--line)}
+.timeline li:first-child{border-top:0}
+.tl-t{font-weight:700;font-variant-numeric:tabular-nums}
+.tl-k{font-weight:700}
+.tl-d{font-size:13px;color:var(--muted)}
+.tl-d a{color:var(--blue)}
+.empty{color:var(--muted);font-size:14px;padding:8px 0}
+
+.flag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:6px;margin:1px 3px 1px 0;white-space:nowrap}
+.f-late{background:var(--red-soft);color:var(--red)}
+.f-lunch{background:var(--mustard-soft);color:#A66A00}
+.f-miss{background:#2a2420;color:#fff}
+.f-gps{background:#F1ECE6;color:var(--muted)}
+.f-leave{background:var(--blue-soft);color:var(--blue)}
+.f-ok{background:var(--basil-soft);color:var(--basil)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:8px 8px;border-bottom:1.5px solid var(--line);white-space:nowrap}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
+tr.row{cursor:pointer}
+tr.row:hover td{background:#FFFBF5}
+tr.detail td{background:#FBF8F4}
+.det{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.det-c{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}
+.det-c b{display:block;margin-bottom:2px}
+.det-c .s{font-size:12.5px;color:var(--muted)}
+.det-c a{color:var(--blue)}
+.sub{font-size:12px;color:var(--muted)}
+
+.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:680px){.filters{grid-template-columns:1fr 1fr}}
+.filters label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:#fff}
+
+.gate{max-width:380px;margin:30px auto 0;text-align:center}
+.pin{letter-spacing:.5em;text-align:center;font-size:22px;font-weight:700}
+.lock{width:54px;height:54px;border-radius:16px;background:var(--red-soft);color:var(--red);display:grid;place-items:center;margin:0 auto 12px;font-size:26px}
+
+#toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:all .2s;max-width:90vw;z-index:20}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.hide{display:none!important}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:14px;text-align:center;background:#FBF8F4}
+.split{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.auth{max-width:520px;margin-left:auto;margin-right:auto}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:#F3ECE3;border-radius:12px;padding:4px;margin-bottom:16px}
+.seg button{border:0;background:transparent;padding:9px;border-radius:9px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--red);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+#authForm.in .up-only{display:none}
+#authForm.up .in-only{display:none}
+.f-corr{background:#EEE8FB;color:#5B3FB0}
+.f-abs{background:var(--red);color:#fff}
+.lv-days{font-size:13px;color:var(--muted);margin-top:6px}
+.lv-days b{color:var(--ink)}
+.warnline{font-size:13px;color:#8A5A00;background:var(--mustard-soft);border-radius:8px;padding:6px 10px;margin-top:8px}
+.b-absent{background:var(--red-soft);color:var(--red)}
+.ni{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-top:1px dashed var(--line);flex-wrap:wrap}
+.ni:first-child{border-top:0}
+.ni-late{font-weight:700;color:var(--red);font-variant-numeric:tabular-nums;font-size:13px}
+.daychips{display:flex;gap:6px;flex-wrap:wrap}
+.daychips label{display:flex;align-items:center;gap:5px;border:1.5px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer;background:#fff}
+.daychips input{accent-color:var(--red)}
+.hol{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px dashed var(--line);font-size:13.5px}
+.hol:first-child{border-top:0}
+.hol.past{opacity:.5}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:12px 16px;font-weight:700;font-size:15px}
+.gbtn:hover{border-color:var(--ink)}
+.gbtn svg{width:20px;height:20px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;margin:14px 0 2px}
+.or::before,.or::after{content:"";flex:1;border-top:1px solid var(--line)}
+#authForm.onboard .pin-only,#authForm.onboard .in-only{display:none}
+.loading{text-align:center;padding:40px 16px;color:var(--muted)}
+.consent{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:13px;line-height:1.45}
+#authForm.in .consent{display:none}
+.invchip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 4px 3px 10px;margin:3px 4px 0 0;font-size:12.5px;color:var(--ink)}
+.invchip button{border:0;background:#F1ECE6;border-radius:999px;width:20px;height:20px;line-height:1;cursor:pointer}
+.avatar{flex:none}
+.grid2>*,.filters>*,.corr-grid>*{min-width:0}
+input[type=date].inp,input[type=time].inp{min-width:0;-webkit-appearance:none;appearance:none;min-height:46px}
+.who-l{min-width:0}
+/* ---------- phones ---------- */
+@media(max-width:640px){
+  .inp,select.inp,textarea.inp{font-size:16px} /* stops iOS zooming into fields */
+  main{padding:0 10px 60px}
+  .card{padding:14px;border-radius:12px}
+  .tabs{padding:8px 10px 0}
+  .tab{padding:10px 4px;font-size:14px}
+  .who{flex-wrap:wrap}
+  .who > .split{width:100%;justify-content:space-between;border-top:1px dashed var(--line);padding-top:10px}
+  .punch{min-height:104px;padding:12px 10px 10px}
+  .punch .p-label{font-size:16px}
+  .punch .p-time{font-size:19px}
+  .stat .v{font-size:19px}
+  .card-h{align-items:flex-start}
+  .ni > div:nth-child(2){text-align:left!important}
+  .hol{grid-template-columns:1fr auto}
+  .hol > span:first-child{grid-column:1/-1;font-weight:700}
+  .inline-edit .inp{min-width:0;flex:1 1 100%}
+  /* tables become stacked cards */
+  .tbl-wrap.cards{margin:0;padding:0;overflow:visible}
+  .cards table,.cards tbody,.cards tr,.cards td{display:block;width:100%}
+  .cards thead{display:none}
+  .cards tbody tr:not(.detail){border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-bottom:10px;background:#fff}
+  .cards tr.row:hover td{background:transparent}
+  .cards td{border:0;padding:4px 0 4px 100px;position:relative;min-height:26px}
+  .cards td::before{content:attr(data-l);position:absolute;left:0;top:6px;width:92px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .cards td[data-l=""]{padding-left:0}
+  .cards td[data-l=""]{display:block}
+  .cards td[data-l=""]::before{content:none}
+  .cards tr.detail{margin:-4px 0 12px}
+  .cards tr.detail td{display:block;padding:10px;border-radius:12px}
+  .cards tr.detail td::before{content:none}
+  .cards td.empty{display:block}
+}
+.f-pend{background:#FFF1D6;color:#8A5A00;border:1px dashed #E7A532}
+.b-pend{background:var(--mustard-soft);color:#A66A00}
+.b-ok{background:var(--basil-soft);color:var(--basil)}
+.b-no{background:var(--red-soft);color:var(--red)}
+.corr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:680px){.corr-grid{grid-template-columns:1fr 1fr}}
+.corr-grid .cur{font-size:12px;color:var(--muted);margin-top:4px}
+.ci{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;background:#fff}
+.ci-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.chg{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin-top:8px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.chg .from{color:var(--muted);text-decoration:line-through}
+.chg .to{font-weight:700}
+.reason{margin-top:8px;font-size:13.5px;background:#FBF8F4;border-radius:8px;padding:8px 10px}
+.count{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--red);color:#fff;font-size:12px;font-weight:800;margin-left:6px;vertical-align:2px}
+.corr-mark{font-size:12px;color:#5B3FB0;font-weight:600}
+.inline-edit{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.inline-edit .inp{padding:7px 9px;width:auto;flex:1;min-width:120px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">USP</div>
+    <div class="brand-titles"><small class="brand-s">US Pizza Malaysia</small><strong class="brand-t">Intern Attendance</strong></div>
+  </div>
+  <div class="clock"><div id="nowDate">&nbsp;</div><div id="nowTime">--:--:--</div></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab" role="tab" data-tab="clock" aria-selected="true">Clock</button>
+  <button class="tab" role="tab" data-tab="log" aria-selected="false">My Log</button>
+  <button class="tab" role="tab" data-tab="sup" aria-selected="false">Admin</button>
+</nav>
+<div id="banner" class="banner hide"></div>
+
+<main>
+<!-- ========== CLOCK ========== -->
+<section id="tab-clock">
+  <div id="loadingCard" class="card auth loading"><span class="spin"></span> Loading…</div>
+  <div id="profileCard" class="card hide auth">
+    <div id="googleBox">
+      <button type="button" class="gbtn" id="googleBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Sign in with Google</button>
+      <div class="or">or use your Gmail address + PIN</div>
+    </div>
+    <div class="seg" role="tablist" id="authSeg"><button type="button" id="modeIn" aria-pressed="true">Sign in</button><button type="button" id="modeUp" aria-pressed="false">Create account</button></div>
+    <form id="authForm" class="in" novalidate>
+      <h2 id="authTitle">Welcome back 👋</h2>
+      <p class="hint" id="authSub" style="margin:4px 0 4px">Sign in with your Gmail address and PIN.</p>
+      <label class="f" for="auEmail">Gmail address <span class="req">*</span></label>
+      <input class="inp" id="auEmail" type="email" autocomplete="username" inputmode="email" placeholder="yourname@gmail.com">
+      <div class="up-only">
+        <label class="f" for="auName">Full name <span class="req">*</span></label>
+        <input class="inp" id="auName" autocomplete="name" placeholder="e.g. Alex Tan Jia Wei">
+        <div class="hint">This name is attached to every clock-in and clock-out automatically.</div>
+        <div class="grid2">
+          <div><label class="f" for="auDept">Department</label><input class="inp" id="auDept" placeholder="e.g. Digital / AI"></div>
+          <div><label class="f" for="auSup">Reporting Superior</label><input class="inp" id="auSup" placeholder="e.g. Farah Aziz"></div>
+        </div>
+        <label class="f" for="auBaseAtt">Base location</label>
+        <select class="inp base-att" id="auBaseAtt"></select>
+        <input class="inp" id="auBase" placeholder="Outlet / office name, e.g. US Pizza Setia City Mall" style="margin-top:8px">
+        <div class="hint">Filled in automatically every time you clock in. You can still change it on the day.</div>
+        <div class="grid2">
+          <div><label class="f" for="auStart">Internship start date</label><input type="date" class="inp" id="auStart"></div>
+          <div><label class="f" for="auEnd">Internship end date</label><input type="date" class="inp" id="auEnd"></div>
+        </div>
+        <div class="hint">Used to work out which days you're expected at work.</div>
+      </div>
+      <div class="pin-only">
+        <label class="f" for="auPin">PIN / password <span class="req">*</span></label>
+        <input class="inp" id="auPin" type="password" autocomplete="current-password" placeholder="At least 4 characters">
+        <div class="up-only">
+          <label class="f" for="auPin2">Confirm PIN / password <span class="req">*</span></label>
+          <input class="inp" id="auPin2" type="password" autocomplete="new-password">
+        </div>
+      </div>
+      <label class="up-only consent">
+        <input type="checkbox" id="auConsent" style="margin-top:3px;width:18px;height:18px;accent-color:var(--red);flex:none">
+        <span>I agree that US Pizza Malaysia records my clock-in and clock-out times, the location I choose, my phone's GPS position at each stamp, and any leave or MC documents I upload, for attendance and internship administration. Only admins can see other interns' records. Records are kept for up to 12 months after my internship ends.</span>
+      </label>
+      <button class="btn" type="submit" id="authBtn" style="width:100%;margin-top:16px">Sign in</button>
+      <div class="msg" id="authMsg"></div>
+      <p class="hint in-only" style="text-align:center;margin-top:12px">Forgot your PIN? Sign in with Google instead, or ask your admin to reset it.</p>
+      <p class="hint onboard-only hide" id="onboardOut" style="text-align:center;margin-top:12px">Not you? <button type="button" class="link" id="onboardSignOut">Sign out</button></p>
+    </form>
+    <div class="demo-wrap" style="border-top:1px dashed var(--line);margin-top:16px;padding-top:14px;text-align:center">
+      <button type="button" class="btn ghost demo-btn" style="width:100%">🧪 View demo with sample data</button>
+      <div class="hint">Explore every screen with made-up interns. Nothing is saved.</div>
+    </div>
+  </div>
+
+  <div id="pendingCard" class="card hide auth" style="text-align:center">
+    <div class="lock">⏳</div>
+    <h2>Waiting for approval</h2>
+    <p class="hint" id="pendingText" style="margin:6px 0 0">Your account has been created. An admin needs to approve it before you can clock in. Please let your reporting superior know.</p>
+    <div style="margin-top:16px"><button class="btn ghost" id="pendingSignOut">Sign out</button></div>
+  </div>
+
+  <div id="acctCard" class="card hide auth">
+    <h2>Account details</h2>
+    <p class="hint" id="acctWho" style="margin:4px 0 0"></p><p class="hint" id="acctPeriod" style="margin:2px 0 0"></p>
+    <div class="grid2">
+      <div><label class="f" for="acDept">Department</label><input class="inp" id="acDept"></div>
+      <div><label class="f" for="acSup">Reporting Superior</label><input class="inp" id="acSup"></div>
+    </div>
+    <label class="f" for="acBaseAtt">Base location</label>
+    <select class="inp base-att" id="acBaseAtt"></select>
+    <input class="inp" id="acBase" placeholder="Outlet / office name, e.g. US Pizza Setia City Mall" style="margin-top:8px">
+    <div class="hint">Used as your default location when clocking in.</div>
+    <h3 style="margin-top:18px">PIN for signing in without Google <span class="sub">(optional)</span></h3>
+    <input type="hidden" id="acCur">
+    <label class="f" for="acNew">Set a new PIN (min 4 characters)</label>
+    <input class="inp" id="acNew" type="password" autocomplete="new-password" placeholder="Leave blank to keep your current PIN">
+    <div class="split" style="margin-top:16px"><button class="btn" id="acSave">Save</button><button class="btn ghost" id="acCancel">Cancel</button></div>
+    <div class="msg" id="acMsg"></div>
+    <p class="hint" style="margin-top:12px">To change the name on your account, ask your reporting superior.</p>
+  </div>
+
+  <div id="clockArea" class="hide">
+    <div class="card who">
+      <div class="who-l"><div class="avatar" id="whoAv">?</div><div><div class="who-n" id="whoName"></div><div class="who-s" id="whoSub"></div></div></div>
+      <div class="split"><button class="link" id="acctBtn">Details</button><button class="btn ghost sm" id="signOutBtn">Sign out</button></div>
+    </div>
+
+    <div class="card">
+      <div class="grid2">
+        <div><label class="f">1A. Working Date</label><div class="datebox tnum" id="workDate"></div></div>
+        <div><label class="f">Status</label><div style="padding-top:8px"><span class="badge b-idle" id="statusBadge">Not clocked in</span></div></div>
+      </div>
+      <label class="f" for="att">1B. Attendance / Location <span class="req">*</span></label>
+      <select class="inp" id="att"></select>
+      <div class="hint hide" id="baseHint"></div>
+      <div id="outletWrap">
+        <label class="f" for="outlet">Specify Outlet Name(s) / Session <span class="req">*</span></label>
+        <input class="inp" id="outlet" placeholder="e.g. US Pizza Setia City Mall">
+        <div class="hint" id="outletHint">Type the outlet name, or HQ for half-days at head office.</div>
+      </div>
+      <label class="f" for="note">Note <span class="sub">(optional, saved with your next stamp)</span></label>
+      <input class="inp" id="note" placeholder="e.g. Running late, LRT delay">
+      <div class="gpsline"><span id="gpsStatus">📍 A GPS reading is attempted with every stamp</span><button class="link" id="gpsTest" type="button">Test GPS</button></div>
+    </div>
+
+    <div class="card" id="punchCard">
+      <div class="card-h"><div><h3>Clock</h3><div class="sub" id="asLine"></div></div><span class="sub" id="ruleLine"></span></div>
+      <div class="punches">
+        <button class="punch" data-k="clockIn"><span class="step">Step 1</span><span class="p-label">Clock In</span><span class="p-time">--:--</span><span class="p-where">&nbsp;</span></button>
+        <button class="punch" data-k="lunchOut"><span class="step">Step 2</span><span class="p-label">Lunch Out</span><span class="p-time">--:--</span><span class="p-where">&nbsp;</span></button>
+        <button class="punch" data-k="lunchIn"><span class="step">Step 3</span><span class="p-label">Lunch In</span><span class="p-time">--:--</span><span class="p-where">&nbsp;</span></button>
+        <button class="punch" data-k="clockOut"><span class="step">Step 4</span><span class="p-label">Clock Out</span><span class="p-time">--:--</span><span class="p-where">&nbsp;</span></button>
+      </div>
+      <div class="msg" id="punchMsg"></div>
+    </div>
+
+    <div class="card hide" id="leaveCard">
+      <h3 id="leaveTitle">Leave request</h3>
+      <p class="hint" style="margin:4px 0 0">Today's leave goes to your admin for approval. Planning ahead? <button type="button" class="link" id="goPlanLeave">Apply for future dates</button></p>
+      <div id="leaveForm">
+        <label class="f" for="leaveType">Leave type <span class="req">*</span></label>
+        <select class="inp" id="leaveType">
+          <option value="Annual">Annual leave</option>
+          <option value="University">University leave (class / exam)</option>
+          <option value="Emergency">Emergency leave</option>
+          <option value="Unpaid">Unpaid leave</option>
+        </select>
+        <div id="mcWrap" class="hide">
+          <label class="f">Doctor's MC (photo or PDF) <span class="req">*</span></label>
+          <div class="drop"><input type="file" id="mcFile" accept="image/*,application/pdf"><div class="hint" id="mcHint">A photo works best. Photos are compressed automatically; PDFs up to 700 KB.</div></div>
+        </div>
+        <label class="f" for="leaveReason">Reason <span class="req">*</span></label>
+        <textarea class="inp" id="leaveReason" rows="3" placeholder="e.g. Fever since last night, going to the clinic"></textarea>
+        <div style="margin-top:14px"><button class="btn" id="leaveSubmit">Send for approval</button></div>
+      </div>
+      <div id="leaveDone" class="hide"></div>
+      <div class="msg" id="leaveMsg"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div><h3>Today's summary</h3><span class="sub" id="sumNote"></span></div><button class="link" id="fixToday">Something wrong? Request a correction</button></div>
+      <div class="stats" id="summary"></div>
+      <ol class="timeline" id="timeline"></ol>
+    </div>
+  </div>
+</section>
+
+<!-- ========== MY LOG ========== -->
+<section id="tab-log" class="hide">
+  <div class="card hide" id="corrCard">
+    <div class="card-h"><div><h2>Request a correction</h2><div class="sub">Forgot to clock out, stamped the wrong time, or missed a whole day? Propose the right times and your admin will review it.</div></div></div>
+    <div class="grid2">
+      <div><label class="f" for="crDate">Date <span class="req">*</span></label><input type="date" class="inp" id="crDate"></div>
+      <div><label class="f">Current record</label><div class="datebox" id="crCurrent" style="font-weight:500;font-size:14px">—</div></div>
+    </div>
+    <div id="crNewDay" class="hide">
+      <label class="f" for="crAtt">Where were you that day? <span class="req">*</span></label>
+      <select class="inp" id="crAtt"></select>
+      <input class="inp" id="crOutlet" placeholder="Outlet name, e.g. US Pizza Setia City Mall" style="margin-top:8px">
+    </div>
+    <label class="f">Correct times <span class="sub">(fill in only the ones that need changing)</span></label>
+    <div class="corr-grid">
+      <div><label class="sub" for="cr-clockIn">Clock In</label><input type="time" class="inp" id="cr-clockIn" data-k="clockIn"><div class="cur" id="cur-clockIn"></div></div>
+      <div><label class="sub" for="cr-lunchOut">Lunch Out</label><input type="time" class="inp" id="cr-lunchOut" data-k="lunchOut"><div class="cur" id="cur-lunchOut"></div></div>
+      <div><label class="sub" for="cr-lunchIn">Lunch In</label><input type="time" class="inp" id="cr-lunchIn" data-k="lunchIn"><div class="cur" id="cur-lunchIn"></div></div>
+      <div><label class="sub" for="cr-clockOut">Clock Out</label><input type="time" class="inp" id="cr-clockOut" data-k="clockOut"><div class="cur" id="cur-clockOut"></div></div>
+    </div>
+    <label class="f" for="crReason">Reason <span class="req">*</span></label>
+    <textarea class="inp" id="crReason" rows="3" placeholder="e.g. Forgot to clock out after the closing check. Left at 6:10 PM, outlet manager Jason can confirm."></textarea>
+    <div class="split" style="margin-top:14px"><button class="btn" id="crSubmit">Submit request</button><button class="btn ghost" id="crCancel">Cancel</button></div>
+    <div class="msg" id="crMsg"></div>
+  </div>
+
+  <div class="card" id="myLeaveCard">
+    <div class="card-h"><div><h3>My leave</h3><div class="sub">Apply ahead of time. Your admin approves it, then it shows in your log.</div></div><button class="btn sm" id="lvOpen">+ Apply for leave</button></div>
+    <div class="stats" id="lvBalances"></div>
+    <div id="lvForm" class="hide" style="margin-top:14px;border-top:1px dashed var(--line);padding-top:10px">
+      <div class="grid2">
+        <div><label class="f" for="lvType">Leave type <span class="req">*</span></label>
+          <select class="inp" id="lvType"><option value="Annual">Annual leave</option><option value="University">University leave (class / exam)</option><option value="Emergency">Emergency leave</option><option value="Medical">Medical leave (MC)</option><option value="Unpaid">Unpaid leave</option></select></div>
+        <div></div>
+        <div><label class="f" for="lvFrom">From <span class="req">*</span></label><input type="date" class="inp" id="lvFrom"></div>
+        <div><label class="f" for="lvTo">To <span class="req">*</span></label><input type="date" class="inp" id="lvTo"></div>
+      </div>
+      <div class="lv-days" id="lvDays"></div>
+      <div id="lvMcWrap" class="hide">
+        <label class="f">Doctor's MC (photo or PDF) <span class="req">*</span></label>
+        <div class="drop"><input type="file" id="lvMc" accept="image/*,application/pdf"><div class="hint">A photo works best. PDFs up to 700 KB.</div></div>
+      </div>
+      <label class="f" for="lvReason">Reason <span class="req">*</span></label>
+      <textarea class="inp" id="lvReason" rows="3" placeholder="e.g. Final exam at university"></textarea>
+      <div class="split" style="margin-top:14px"><button class="btn" id="lvSubmit">Send for approval</button><button class="btn ghost" id="lvCancel">Cancel</button></div>
+      <div class="msg" id="lvMsg"></div>
+    </div>
+    <div id="lvList" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card" id="myCorrCard">
+    <div class="card-h"><div><h3>My correction requests</h3><div class="sub">Pending requests can be cancelled. Approved ones update your log automatically.</div></div><button class="btn sm" id="crOpen">+ Request a correction</button></div>
+    <div id="myCorrList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div><h2>My attendance log</h2><div class="sub" id="logWho"></div></div>
+      <div class="split"><button class="btn ghost sm" id="logCopy">Copy CSV</button><button class="btn sm" id="logDl">Download CSV</button></div></div>
+    <div class="stats" id="logStats" style="margin-bottom:14px"></div>
+    <div class="tbl-wrap cards"><table><thead><tr><th>Date</th><th>Location</th><th>In</th><th>Lunch</th><th>Out</th><th>Worked</th><th>Flags</th><th></th></tr></thead><tbody id="logBody"></tbody></table></div>
+  </div>
+</section>
+
+<!-- ========== SUPERVISOR ========== -->
+<section id="tab-sup" class="hide">
+  <div id="supGate" class="card gate">
+    <div class="lock">🔒</div>
+    <h2>Admin access</h2>
+    <div id="gateBody"></div>
+    <div class="demo-wrap" style="border-top:1px dashed var(--line);margin-top:16px;padding-top:14px">
+      <button type="button" class="btn ghost demo-btn" style="width:100%">🧪 View demo with sample data</button>
+    </div>
+  </div>
+
+  <div id="supDash" class="hide">
+    <div class="card" id="todayCard">
+      <div class="card-h"><div><h2 id="tdTitle">Today</h2><div class="sub" id="tdSub"></div></div></div>
+      <div id="tdList"></div>
+    </div>
+    <div class="card" id="adminLeaveCard">
+      <div class="card-h"><div><h2>Leave requests<span class="count hide" id="lvCount">0</span></h2><div class="sub">Approving fills the intern's working days with leave. Days they already clocked in are skipped.</div></div>
+        <div class="chips" style="margin:0"><button class="chip" data-lv="pending" aria-pressed="true">Pending</button><button class="chip" data-lv="upcoming" aria-pressed="false">Upcoming</button><button class="chip" data-lv="decided" aria-pressed="false">Decided</button></div></div>
+      <div id="adminLeaveList"></div>
+    </div>
+    <div class="card" id="adminCorrCard">
+      <div class="card-h"><div><h2>Correction requests<span class="count hide" id="corrCount">0</span></h2><div class="sub">Approving a request updates the intern's record and keeps the original times in its edit history.</div></div>
+        <div class="chips" style="margin:0"><button class="chip" data-cv="pending" aria-pressed="true">Pending</button><button class="chip" data-cv="decided" aria-pressed="false">Decided</button></div></div>
+      <div id="adminCorrList"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Team attendance</h2><div class="split"><button class="btn ghost sm" id="supCopy">Copy CSV</button><button class="btn sm" id="supDl">Download CSV</button><button class="link" id="supLock">Lock</button></div></div>
+      <div class="filters">
+        <div><label>From</label><input type="date" class="inp" id="fFrom"></div>
+        <div><label>To</label><input type="date" class="inp" id="fTo"></div>
+        <div><label>Intern</label><select class="inp" id="fIntern"><option value="">All interns</option></select></div>
+        <div><label>Location</label><select class="inp" id="fState">
+          <option value="">All locations</option><option value="HQ">HQ</option><option value="KL / Selangor">KL / Selangor outlets</option><option value="Penang">Penang</option><option value="Malacca">Malacca</option><option value="Johor">Johor</option><option value="half">Half-day</option><option value="leave">Leave / MC</option><option value="absent">Absent / not in</option></select></div>
+      </div>
+      <div class="chips">
+        <button class="chip" data-q="today">Today</button>
+        <button class="chip" data-q="week">This week</button>
+        <button class="chip" data-q="month">This month</button>
+        <button class="chip" id="fFlag" aria-pressed="false">⚑ Flagged only</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stats" id="supStats"></div>
+    </div>
+
+    <div class="card">
+      <div class="tbl-wrap cards"><table><thead><tr><th>Date</th><th>Intern</th><th>Location</th><th>In</th><th>Lunch</th><th>Out</th><th>Worked</th><th>Flags</th></tr></thead><tbody id="supBody"></tbody></table></div>
+      <div class="sub" style="margin-top:8px">Tap a row to see each stamp's location, GPS and notes.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div><h3>Intern accounts<span class="count hide" id="pendAcctCount">0</span></h3><div class="sub">Approve new sign-ups, reset a forgotten PIN, fix a name, or remove an account. Removing an account keeps its attendance records.</div></div></div>
+      <div id="pendAccts"></div>
+      <div style="border:1px dashed var(--line);border-radius:12px;padding:12px;margin:10px 0 14px;background:#FBF8F4">
+        <b style="font-size:14px">Pre-approve interns</b>
+        <div class="sub">Add an intern's Gmail before they sign up and their account is approved automatically.</div>
+        <div class="inline-edit" style="margin-top:8px"><input class="inp" id="invEmail" type="email" placeholder="intern.name@gmail.com"><button class="btn sm" id="invAdd">Add</button></div>
+        <div class="msg" id="invMsg"></div>
+        <div id="invList" class="sub" style="margin-top:6px"></div>
+      </div>
+      <div class="tbl-wrap cards"><table><thead><tr><th>Name</th><th>Gmail</th><th>Dept / Reporting Superior</th><th>Base location</th><th>Internship</th><th>Created</th><th>Last sign-in</th><th></th></tr></thead><tbody id="acctBody"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <h3>Rules &amp; settings</h3>
+      <p class="hint" style="margin:4px 0 0">Changes apply to everyone immediately. Late and long-lunch flags are recalculated using these values.</p>
+      <div class="grid2" style="margin-top:6px">
+        <div><label class="f">Standard start time</label><input type="time" class="inp" id="sStart"></div>
+        <div><label class="f">Lunch allowance (minutes)</label><input type="number" min="0" max="240" step="5" class="inp" id="sLunch"></div>
+        <div><label class="f">Grace period before "late" (minutes)</label><input type="number" min="0" max="120" class="inp" id="sGrace"></div>
+        <div><label class="f">Standard end time</label><input type="time" class="inp" id="sEnd"><div class="hint">Used to flag early clock-outs.</div></div>
+      </div>
+      <label class="f">Working days</label>
+      <div class="daychips" id="sDays"></div>
+      <div class="hint">Interns are only marked absent on these days, between their internship start and end dates.</div>
+      <label class="f">Leave allowance per intern (days for the whole internship)</label>
+      <div class="grid2">
+        <div><label class="sub" for="laAnnual">Annual leave</label><input type="number" min="0" max="60" class="inp" id="laAnnual" placeholder="No limit"></div>
+        <div><label class="sub" for="laMedical">Medical leave (MC)</label><input type="number" min="0" max="60" class="inp" id="laMedical" placeholder="No limit"></div>
+        <div><label class="sub" for="laUniversity">University leave</label><input type="number" min="0" max="60" class="inp" id="laUniversity" placeholder="No limit"></div>
+        <div><label class="sub" for="laEmergency">Emergency leave</label><input type="number" min="0" max="60" class="inp" id="laEmergency" placeholder="No limit"></div>
+      </div>
+      <div class="hint">Leave blank for no limit. Interns can't apply beyond their allowance; admins can still mark leave directly.</div>
+      <div style="margin-top:14px"><button class="btn" id="sSave">Save settings</button></div>
+      <div class="msg" id="sMsg"></div>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:20px 0 6px">
+      <h3>Public holidays</h3>
+      <p class="hint" style="margin:4px 0 8px">Nobody is expected at work on these days at the locations ticked. Pre-filled with Malaysian holidays from Nov 2026 to Feb 2027. Check them against your company's holiday list.</p>
+      <div id="holList"></div>
+      <div class="grid2" style="margin-top:10px">
+        <div><label class="f" for="hDate">Date</label><input type="date" class="inp" id="hDate"></div>
+        <div><label class="f" for="hName">Holiday name</label><input class="inp" id="hName" placeholder="e.g. Hari Raya Aidilfitri"></div>
+      </div>
+      <label class="f">Applies to interns based at</label>
+      <div class="daychips" id="hWhere"></div>
+      <div style="margin-top:12px"><button class="btn ghost" id="hAdd">+ Add holiday</button></div>
+      <div class="msg" id="hMsg"></div>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:20px 0 6px">
+      <h3>PIN protection</h3>
+      <p class="hint" style="margin:4px 0 0" id="pinState"></p>
+      <div class="grid2" style="margin-top:6px">
+        <div><label class="f">New PIN / password</label><input type="password" class="inp" id="pNew" autocomplete="new-password" placeholder="At least 4 characters"></div>
+        <div><label class="f">Confirm</label><input type="password" class="inp" id="pNew2" autocomplete="new-password"></div>
+      </div>
+      <div style="margin-top:14px" class="split"><button class="btn" id="pSave">Set PIN</button><button class="btn ghost" id="pOff">Turn PIN off</button></div>
+      <div class="msg" id="pMsg"></div>
+    </div>
+  </div>
+</section>
+</main>
+<div id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+const TZ = "Asia/Kuala_Lumpur";
+const OPTIONS = [
+  {v:"HQ",      icon:"🏢", label:"Full Day — HQ (Wisma Conlay, Damansara Heights, KL)", kind:"full", state:"HQ", needs:false},
+  {v:"OUT_KL",  icon:"🍕", label:"Full Day — Outlets (KL / Selangor — Specify Outlet Name)", kind:"full", state:"KL / Selangor", needs:true},
+  {v:"OUT_PNG", icon:"🍕", label:"Full Day — Penang / Outlets (Specify Outlet Name)", kind:"full", state:"Penang", needs:true},
+  {v:"OUT_MLK", icon:"🍕", label:"Full Day — Malacca (Melaka) / Outlets (Specify Outlet Name)", kind:"full", state:"Malacca", needs:true},
+  {v:"OUT_JHR", icon:"🍕", label:"Full Day — Johor / Outlets (Specify Outlet Name)", kind:"full", state:"Johor", needs:true},
+  {v:"HALF_AM", icon:"🌗", label:"Half-Day — Morning / AM Session Only (Specify HQ or Outlet)", kind:"half", state:"Half-day (AM)", needs:true},
+  {v:"HALF_PM", icon:"🌗", label:"Half-Day — Afternoon / PM Session Only (Specify HQ or Outlet)", kind:"half", state:"Half-day (PM)", needs:true},
+  {v:"LEAVE",   icon:"🏖️", label:"Full-Day Leave — Approved Annual / University / Emergency Leave", kind:"leave", state:"Leave", needs:false},
+  {v:"MC",      icon:"🏥", label:"Medical Leave (MC) — Upload Doctor MC Photo / PDF Below", kind:"mc", state:"Medical leave", needs:false},
+];
+const OPT = Object.fromEntries(OPTIONS.map(o => [o.v, o]));
+const KEYS = ["clockIn","lunchOut","lunchIn","clockOut"];
+const KLABEL = {clockIn:"Clock In", lunchOut:"Lunch Out", lunchIn:"Lunch In", clockOut:"Clock Out"};
+const DEFAULT_HOLIDAYS = [
+  {date:"2026-11-09", name:"Deepavali holiday", where:"all"},
+  {date:"2026-12-11", name:"Sultan of Selangor's Birthday", where:["OUT_KL"]},
+  {date:"2026-12-25", name:"Christmas Day", where:"all"},
+  {date:"2027-01-01", name:"New Year's Day", where:["HQ","OUT_KL","OUT_PNG","OUT_MLK"]},
+  {date:"2027-01-22", name:"Thaipusam", where:["HQ","OUT_KL","OUT_PNG","OUT_JHR"]},
+  {date:"2027-02-01", name:"Federal Territory Day", where:["HQ","OUT_KL"]},
+  {date:"2027-02-08", name:"Chinese New Year holiday", where:"all"},
+];
+const DEFAULTS = {startTime:"09:00", endTime:"18:00", lunchMinutes:60, graceMinutes:0, workDays:[1,2,3,4,5], holidays:DEFAULT_HOLIDAYS};
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} },
+};
+const sess = {
+  get(k){ try { return sessionStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { sessionStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { sessionStorage.removeItem(k); } catch(e){} },
+};
+
+/* ---------- time helpers (always Malaysia time) ---------- */
+const fDay = new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"});
+const fHM  = new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+const fT   = new Intl.DateTimeFormat("en-MY",{timeZone:TZ,hour:"numeric",minute:"2-digit",hour12:true});
+const fTS  = new Intl.DateTimeFormat("en-MY",{timeZone:TZ,hour:"numeric",minute:"2-digit",second:"2-digit",hour12:true});
+const fLong= new Intl.DateTimeFormat("en-MY",{timeZone:TZ,weekday:"long",day:"numeric",month:"long",year:"numeric"});
+const fShort=new Intl.DateTimeFormat("en-MY",{timeZone:TZ,weekday:"short",day:"numeric",month:"short"});
+const dayKey = (d = new Date()) => fDay.format(d);
+const keyDate = k => new Date(k + "T12:00:00+08:00");
+const tStr = t => t ? fT.format(new Date(t)).replace(" ", " ") : "—";
+const klMin = t => { const [h,m] = fHM.format(new Date(t)).split(":").map(Number); return h*60+m; };
+const hm = s => { const [h,m] = String(s||"0:0").split(":").map(Number); return (h||0)*60+(m||0); };
+const dur = min => { if (min == null || isNaN(min)) return "—"; const t = Math.max(0, Math.round(min)); return `${Math.floor(t/60)}h ${String(t%60).padStart(2,"0")}m`; };
+const hhmm12 = s => { const m = hm(s); const h = Math.floor(m/60), mm = m%60; return `${((h+11)%12)+1}:${String(mm).padStart(2,"0")} ${h<12?"AM":"PM"}`; };
+const addDays = (k, n) => { const d = keyDate(k); d.setUTCDate(d.getUTCDate()+n); return dayKey(d); };
+const weekStart = k => { const d = keyDate(k); const wd = (d.getUTCDay()+6)%7; return addDays(k, -wd); };
+
+/* ---------- state ---------- */
+let db = null, user = null, assets = null, downloads = null, uid = null;
+let settings = {...DEFAULTS};
+let session = null;
+const toProfile = a => ({id:a.email, name:a.name, dept:a.dept||"", sup:a.sup||"", baseAtt:a.baseAtt||"", base:a.base||"", startDate:a.startDate||"", endDate:a.endDate||"", createdAt:a.createdAt||null});
+let profile = null;
+let accounts = [], unsubAccts = null, acctEdit = null;
+let todayAll = [], unsubTodayAll = null, tdOpen = null;
+let myLeave = [], allLeave = [], unsubMyLeave = null, unsubAllLeave = null, lvView = "pending", lvBusy = false;
+let today = dayKey();
+let todayRec = null, todayLoaded = false, unsubToday = null;
+let myRecs = [], unsubMine = null;
+let allRecs = [], unsubAll = null;
+let busy = false, pendingConfirm = null, touchedForm = false;
+let supUnlocked = false, flagOnly = false;
+let lastGps = null;
+
+/* ---------- toast & banner ---------- */
+let toastT;
+function toast(msg){ const el = $("#toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("show"), 2600); }
+function banner(html){ const b = $("#banner"); if (!html) { b.classList.add("hide"); return; } b.innerHTML = html; b.classList.remove("hide"); }
+
+/* ---------- live clock ---------- */
+function tick(){
+  const now = new Date();
+  $("#nowTime").textContent = fTS.format(now);
+  $("#nowDate").textContent = fLong.format(now);
+  const k = dayKey(now);
+  if (k !== today) { today = k; touchedForm = false; subscribeToday(); if (unsubTodayAll) { unsubTodayAll(); unsubTodayAll = null; subscribeTodayAll(); } renderAll(); }
+}
+setInterval(tick, 1000); tick();
+setInterval(() => { renderClock(); if (supUnlocked) { renderSup(); renderToday(); } }, 30000);
+
+/* ---------- tabs ---------- */
+$$(".tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+function showTab(t){
+  $$(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  ["clock","log","sup"].forEach(x => $("#tab-"+x).classList.toggle("hide", x !== t));
+  if (t === "sup") renderGate();
+  if (t === "log") renderLog();
+}
+
+/* ---------- select options ---------- */
+$("#att").innerHTML = `<option value="">Select attendance / location…</option>` + OPTIONS.map(o => `<option value="${o.v}">${o.icon} ${esc(o.label)}</option>`).join("");
+$$(".base-att").forEach(s => s.innerHTML = `<option value="">No default (choose each day)</option>` + OPTIONS.filter(o => o.kind === "full").map(o => `<option value="${o.v}">${o.icon} ${esc(o.label)}</option>`).join(""));
+const baseText = p => p && p.baseAtt ? (p.baseAtt === "HQ" ? "HQ, Wisma Conlay" + (p.base ? " · " + p.base : "") : `${OPT[p.baseAtt].state}${p.base ? " · " + p.base : ""}`) : "";
+
+/* ---------- analysis ---------- */
+function analyse(r){
+  const e = r.events || {};
+  const o = OPT[r.attendance] || {};
+  const isToday = r.date === today;
+  const res = {flags:[], lunchMin:null, workedMin:null, lateMin:0, status:"idle", statusText:"Not clocked in"};
+  if (r.pendingLeave) {
+    res.status = "leave"; res.statusText = "Leave pending";
+    res.flags.push({c:"f-pend", t:`${r.pendingLeave.type} leave pending`});
+    return res;
+  }
+  if (!r.leave && !e.clockIn && (r.absent || r.date < today)) {
+    res.status = "absent"; res.statusText = r.date === today ? "Not clocked in" : "Absent";
+    res.flags.push({c:"f-abs", t: r.date === today ? "Not in yet" : "Absent"});
+    return res;
+  }
+  if (r.leave) {
+    res.status = "leave"; res.statusText = r.leave.kind === "mc" ? "Medical leave" : `${r.leave.type || ""} leave`.trim();
+    res.flags.push({c:"f-leave", t: r.leave.kind === "mc" ? (r.leave.mcAssetId ? "MC uploaded" : r.leave.markedBy ? "MC (marked by admin)" : "MC missing") : "Leave"});
+    return res;
+  }
+  const now = Date.now();
+  if (e.lunchOut) {
+    const end = e.lunchIn ? e.lunchIn.t : (e.clockOut ? e.clockOut.t : (isToday ? now : null));
+    if (end) res.lunchMin = (end - e.lunchOut.t) / 60000;
+  }
+  if (e.clockIn) {
+    const end = e.clockOut ? e.clockOut.t : (isToday ? now : null);
+    if (end) res.workedMin = (end - e.clockIn.t) / 60000 - (res.lunchMin || 0);
+    // late: full day + AM half-day start at the standard start time
+    if (o.kind === "full" || r.attendance === "HALF_AM") {
+      const late = klMin(e.clockIn.t) - (hm(settings.startTime) + (+settings.graceMinutes || 0));
+      if (late > 0) { res.lateMin = late; res.flags.push({c:"f-late", t:`Late ${dur(late)}`}); }
+    }
+  }
+  if (res.lunchMin != null && res.lunchMin > (+settings.lunchMinutes || 0) + 0.5) {
+    const over = res.lunchMin - (+settings.lunchMinutes || 0);
+    res.flags.push({c:"f-lunch", t:`Lunch +${Math.round(over)}m`});
+  }
+  if (e.clockOut && (o.kind === "full") && settings.endTime) {
+    const early = hm(settings.endTime) - klMin(e.clockOut.t);
+    if (early > 0) res.flags.push({c:"f-lunch", t:`Left ${dur(early)} early`});
+  }
+  if (e.clockIn && !e.clockOut && r.date < today) res.flags.push({c:"f-miss", t:"No clock-out"});
+  if (e.lunchOut && !e.lunchIn && r.date < today) res.flags.push({c:"f-miss", t:"No lunch-in"});
+  const srvMs = v => v == null ? null : typeof v === "number" ? v : v.toMillis ? v.toMillis() : v.seconds != null ? v.seconds * 1000 : null;
+  if (KEYS.some(k => { const x = e[k]; const sv = x && srvMs(x.srv); return sv != null && x.t - sv > 5 * 60000; })) res.flags.push({c:"f-late", t:"Phone clock ahead"});
+  if (KEYS.some(k => { const x = e[k]; const sv = x && srvMs(x.srv); return sv != null && sv - x.t > 5 * 60000; })) res.flags.push({c:"f-gps", t:"Synced late (offline?)"});
+  const noGps = KEYS.some(k => e[k] && !e[k].corrected && !(e[k].gps && e[k].gps.ok));
+  if (KEYS.some(k => e[k] && e[k].corrected)) res.flags.push({c:"f-corr", t:"Corrected"});
+  if (noGps) res.flags.push({c:"f-gps", t:"No GPS"});
+  if (e.clockOut) { res.status = "done"; res.statusText = "Clocked out"; }
+  else if (e.lunchOut && !e.lunchIn) { res.status = "lunch"; res.statusText = "On lunch"; }
+  else if (e.clockIn) { res.status = "work"; res.statusText = "Working"; }
+  return res;
+}
+const flagHtml = (a, pend) => (a.flags.length ? a.flags.map(f => `<span class="flag ${f.c}">${esc(f.t)}</span>`).join("") : (pend ? "" : `<span class="flag f-ok">OK</span>`)) + (pend ? `<span class="flag f-pend">Fix pending</span>` : "");
+const corrNote = x => x && x.corrected ? `<div class="corr-mark">✎ ${x.originalT ? "corrected from " + tStr(x.originalT) : "added by correction"}</div>` : "";
+const isFlagged = a => a.flags.some(f => f.c !== "f-ok" && f.c !== "f-leave");
+const locShort = r => { if (r.synthetic) return baseText({baseAtt:r.baseAtt, base:r.baseOutlet}) ? "Base: " + baseText({baseAtt:r.baseAtt, base:r.baseOutlet}) : "—"; const o = OPT[r.attendance]; if (!o) return "—"; return o.v === "HQ" ? "HQ" : `${o.state}${r.outlet ? " · " + r.outlet : ""}`; };
+const gpsLink = g => g && g.ok ? `<a href="https://www.google.com/maps?q=${g.lat},${g.lng}" target="_blank" rel="noopener">${g.lat.toFixed(5)}, ${g.lng.toFixed(5)}</a> (±${g.acc}m)` : `<span>GPS not captured${g && g.reason ? " (" + esc(g.reason) + ")" : ""}</span>`;
+
+/* ---------- GPS ---------- */
+function getGPS(){
+  if (demo) { const b = DEMO_GEO[$("#att").value] || DEMO_GEO.HQ; return new Promise(r => setTimeout(() => r({ok:true, lat:+(b[0] + (Math.random()-.5)*.0008).toFixed(6), lng:+(b[1] + (Math.random()-.5)*.0008).toFixed(6), acc: 8 + Math.round(Math.random()*15)}), 500)); }
+  return new Promise(res => {
+    if (!("geolocation" in navigator)) return res({ok:false, reason:"unsupported"});
+    let done = false;
+    const fin = v => { if (done) return; done = true; clearTimeout(to); res(v); };
+    const to = setTimeout(() => fin({ok:false, reason:"timeout"}), 8000);
+    try {
+      navigator.geolocation.getCurrentPosition(
+        p => fin({ok:true, lat:+p.coords.latitude.toFixed(6), lng:+p.coords.longitude.toFixed(6), acc:Math.round(p.coords.accuracy)}),
+        e => fin({ok:false, reason: e && e.code === 1 ? "permission denied" : e && e.code === 3 ? "timeout" : "unavailable"}),
+        {enableHighAccuracy:true, timeout:7000, maximumAge:60000});
+    } catch (e) { fin({ok:false, reason:"blocked"}); }
+  });
+}
+$("#gpsTest").addEventListener("click", async () => {
+  $("#gpsStatus").innerHTML = `<span class="spin"></span> Getting location…`;
+  const g = await getGPS(); lastGps = g;
+  $("#gpsStatus").innerHTML = g.ok ? `📍 GPS OK: ${gpsLink(g)}` : `📍 GPS unavailable (${esc(g.reason)}). Your stamps will still save with the location you choose.`;
+});
+
+/* ---------- accounts: Google sign-in OR Gmail + PIN ---------- */
+const normEmail = s => String(s||"").trim().toLowerCase();
+const isGmail = e => /^[a-z0-9][a-z0-9.+_-]*@(gmail|googlemail)\.com$/.test(e);
+const newSalt = () => { try { return [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2,"0")).join(""); } catch(e) { return Math.random().toString(36).slice(2) + Date.now().toString(36); } };
+let authMode = "in", FB = null, fbUser = null, onboarding = false, unsubMyAcct = null, isAdminUser = false;
+const fbEmail = () => fbUser && fbUser.email ? fbUser.email.toLowerCase() : "";
+
+function setMode(m){
+  authMode = m;
+  $("#authForm").className = m + (onboarding ? " onboard" : "");
+  $("#modeIn").setAttribute("aria-pressed", m === "in"); $("#modeUp").setAttribute("aria-pressed", m === "up");
+  $("#googleBox").classList.toggle("hide", onboarding);
+  $("#authSeg").classList.toggle("hide", onboarding);
+  $("#onboardOut").classList.toggle("hide", !onboarding);
+  $("#auEmail").readOnly = onboarding;
+  $("#authTitle").textContent = onboarding ? "Finish setting up your account" : m === "in" ? "Welcome back 👋" : "Create your intern account";
+  $("#authSub").textContent = onboarding ? "You're signed in with Google. Fill in your details once and you're done." : m === "in" ? "Sign in with your Gmail address and PIN." : "Do this once. After that, sign in with Google or your Gmail and PIN.";
+  $("#authBtn").textContent = onboarding ? "Save & continue" : m === "in" ? "Sign in" : "Create account";
+  $("#auPin").setAttribute("autocomplete", m === "in" ? "current-password" : "new-password");
+  setMsg("#authMsg");
+}
+$("#modeIn").addEventListener("click", () => setMode("in"));
+$("#modeUp").addEventListener("click", () => setMode("up"));
+function showLoading(on){ $("#loadingCard").classList.toggle("hide", !on); if (on) { $("#profileCard").classList.add("hide"); $("#clockArea").classList.add("hide"); } }
+function showAuth(){
+  showLoading(false); $("#pendingCard").classList.add("hide");
+  $("#profileCard").classList.remove("hide"); $("#clockArea").classList.add("hide"); $("#acctCard").classList.add("hide");
+  $("#auPin").value = ""; $("#auPin2").value = "";
+}
+function startOnboarding(email){
+  onboarding = true; setMode("up");
+  $("#auEmail").value = email;
+  if (fbUser && fbUser.displayName && !$("#auName").value) $("#auName").value = fbUser.displayName;
+  if (!$("#auStart").value) $("#auStart").value = today;
+  showAuth();
+}
+
+async function api(path, body, withAuth){
+  const headers = {"Content-Type":"application/json"};
+  if (withAuth && FB) headers.Authorization = "Bearer " + await FB.idToken();
+  let res;
+  try { res = await fetch(path, {method:"POST", headers, body:JSON.stringify(body)}); }
+  catch(e) { throw {userMsg:"Can't reach the server. Check your internet connection."}; }
+  let j = {}; try { j = await res.json(); } catch(e){}
+  if (!res.ok) throw {userMsg: j.error || `Server error (${res.status}).`, status:res.status};
+  return j;
+}
+
+$("#googleBtn").addEventListener("click", async () => {
+  if (!FB) { setMsg("#authMsg","bad","Sign-in isn't available right now. Reload the page, or try the demo below."); return; }
+  setMsg("#authMsg","",`<span class="spin"></span> Opening Google…`);
+  try { await FB.googleSignIn(); setMsg("#authMsg"); }
+  catch (er) { setMsg("#authMsg","bad", er && er.code === "auth/popup-closed-by-user" ? "Google sign-in was closed before finishing." : "Google sign-in didn't work. " + esc((er && er.message) || "")); }
+});
+$("#onboardSignOut").addEventListener("click", () => { if (FB) FB.signOut(); });
+
+$("#authForm").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  if (busy) return;
+  $$("#authForm .inp").forEach(i => i.classList.remove("err"));
+  if (!FB) { setMsg("#authMsg","bad","Sign-in isn't available right now. Reload the page, or try the demo below."); return; }
+  const email = onboarding ? fbEmail() : normEmail($("#auEmail").value), pin = $("#auPin").value;
+  if (!onboarding && !isGmail(email)) { $("#auEmail").classList.add("err"); setMsg("#authMsg","bad","Enter a valid Gmail address (ending in @gmail.com)."); return; }
+  if (!onboarding && pin.length < 4) { $("#auPin").classList.add("err"); setMsg("#authMsg","bad","Your PIN / password must be at least 4 characters."); return; }
+
+  if (authMode === "up" || onboarding) {
+    const name = $("#auName").value.trim().replace(/\s+/g, " ");
+    if (!name) { $("#auName").classList.add("err"); setMsg("#authMsg","bad","Please enter your full name."); return; }
+    if ($("#auEnd").value && $("#auEnd").value < ($("#auStart").value || today)) { $("#auEnd").classList.add("err"); setMsg("#authMsg","bad","The end date must be after the start date."); return; }
+    if (!$("#auConsent").checked) { setMsg("#authMsg","bad","Please tick the box to agree to how your attendance data is used."); return; }
+    if (!onboarding && pin !== $("#auPin2").value) { $("#auPin2").classList.add("err"); setMsg("#authMsg","bad","The two PINs don't match."); return; }
+    const details = {name, dept:$("#auDept").value.trim(), sup:$("#auSup").value.trim(), baseAtt:$("#auBaseAtt").value, base:$("#auBase").value.trim(), startDate:$("#auStart").value || today, endDate:$("#auEnd").value || ""};
+    busy = true; setMsg("#authMsg","",`<span class="spin"></span> ${onboarding ? "Saving your details…" : "Creating your account…"}`);
+    try {
+      if (onboarding) {
+        const now = Date.now();
+        let invited = false;
+        try { invited = (await db.doc("invites/" + email).get()).exists; } catch(e){}
+        await db.doc("accounts/" + email).set({email, ...details, signIn:"google", status: invited ? "active" : "pending", consentAt:now, createdAt:now, lastLogin:now});
+        onboarding = false; // the account listener signs them in
+      } else {
+        const r = await api("/api/pin-signup", {email, pin, profile:details, consent:true});
+        await FB.signInWithToken(r.token);
+      }
+    } catch (er) {
+      if (er && er.status === 409) setMsg("#authMsg","warn", esc(er.userMsg) + ` <button type="button" class="link" id="goIn">Go to sign in</button>`), $("#goIn") && ($("#goIn").onclick = () => setMode("in"));
+      else setMsg("#authMsg","bad", er && er.userMsg ? esc(er.userMsg) : saveErr(er));
+    } finally { busy = false; }
+    return;
+  }
+
+  busy = true; setMsg("#authMsg","",`<span class="spin"></span> Signing in…`);
+  try {
+    const r = await api("/api/pin-login", {email, pin});
+    await FB.signInWithToken(r.token);
+  } catch (er) {
+    if (er && er.status === 404) { setMsg("#authMsg","warn",`${esc(er.userMsg)} <button type="button" class="link" id="goUp">Create an account</button> or sign in with Google.`); $("#goUp").onclick = () => setMode("up"); }
+    else { if (er && er.status === 401) { $("#auPin").classList.add("err"); $("#auPin").value = ""; } setMsg("#authMsg","bad", esc((er && er.userMsg) || "Couldn't sign in.")); }
+  } finally { busy = false; }
+});
+
+// Firebase auth state -> account
+async function handleAuth(u){
+  fbUser = u;
+  if (demo) return;
+  if (unsubMyAcct) { unsubMyAcct(); unsubMyAcct = null; }
+  if (!u) {
+    isAdminUser = false; onboarding = false; uid = null;
+    if (unsubSettings) { unsubSettings(); unsubSettings = null; }
+    settings = {...DEFAULTS};
+    clearSignedIn(); setMode("in"); showAuth(); renderGate();
+    return;
+  }
+  uid = u.uid;
+  const email = fbEmail();
+  if (!email) { setMsg("#authMsg","bad","This Google account has no email address."); FB.signOut(); return; }
+  try { isAdminUser = (await db.doc("admins/" + email).get()).exists; } catch(e){ isAdminUser = false; }
+  subscribeSettings(); if (isAdminUser) subscribeAdminPin(); else { if (unsubAdminPin) { unsubAdminPin(); unsubAdminPin = null; } adminPin = null; }
+  let first = true;
+  unsubMyAcct = db.doc("accounts/" + email).onSnapshot(sn => {
+    if (!sn.exists) {
+      if (profile) clearSignedIn();
+      if (u.provider === "google") startOnboarding(email);
+      else { FB.signOut(); setMsg("#authMsg","warn","Your account was removed. Please create it again."); }
+      return;
+    }
+    const a = sn.data();
+    onboarding = false;
+    if ((a.status || "active") !== "active" && !isAdminUser) {
+      if (profile) clearSignedIn();
+      showPending(a);
+      return;
+    }
+    $("#pendingCard").classList.add("hide");
+    if (!profile || profile.id !== a.email) {
+      signedIn(a);
+      if (first) { first = false; db.doc("accounts/" + email).update({lastLogin: Date.now()}).catch(() => {}); toast(`Signed in as ${a.name}`); }
+    } else { profile = toProfile(a); renderAll(); }
+  }, er => { showAuth(); setMsg("#authMsg","bad","Couldn't load your account. " + esc(er.message || "")); });
+  renderGate();
+}
+
+function showPending(a){
+  showLoading(false);
+  $("#profileCard").classList.add("hide"); $("#clockArea").classList.add("hide"); $("#acctCard").classList.add("hide");
+  $("#pendingCard").classList.remove("hide");
+  $("#pendingText").textContent = a.status === "rejected"
+    ? "Your account wasn't approved. If you think this is a mistake, please speak to your reporting superior."
+    : `Thanks, ${a.name.split(" ")[0]}! Your account has been created. An admin needs to approve it before you can clock in. Please let your reporting superior know.`;
+}
+$("#pendingSignOut").addEventListener("click", () => signOut());
+
+function signedIn(acct){
+  session = null;
+  profile = toProfile(acct);
+  $("#auPin").value = ""; $("#auPin2").value = ""; setMsg("#authMsg");
+  showLoading(false);
+  $("#profileCard").classList.add("hide"); $("#acctCard").classList.add("hide"); $("#pendingCard").classList.add("hide"); $("#clockArea").classList.remove("hide");
+  touchedForm = false; $("#att").value = ""; $("#outlet").value = ""; $("#note").value = ""; setMsg("#punchMsg");
+  renderProfile(); subscribeToday(); subscribeMine(); subscribeMyCorr(); subscribeMyLeave(); renderAll();
+}
+function clearSignedIn(){
+  profile = null;
+  if (unsubToday) { unsubToday(); unsubToday = null; }
+  if (unsubMine) { unsubMine(); unsubMine = null; }
+  if (unsubMyCorr) { unsubMyCorr(); unsubMyCorr = null; }
+  if (unsubMyLeave) { unsubMyLeave(); unsubMyLeave = null; }
+  todayRec = null; myRecs = []; myCorr = []; myLeave = []; todayLoaded = false; $("#lvForm").classList.add("hide"); $("#corrCard").classList.add("hide");
+  supUnlocked = false; renderLog();
+}
+function signOut(note){
+  if (demo) { exitDemo(); return; }
+  if (FB) FB.signOut(); else { clearSignedIn(); setMode("in"); showAuth(); }
+  if (note) setMsg("#authMsg","warn",note);
+}
+$("#signOutBtn").addEventListener("click", () => { signOut(); toast("Signed out"); });
+
+// account details (intern self-service)
+$("#acctBtn").addEventListener("click", () => {
+  $("#acDept").value = profile.dept || ""; $("#acSup").value = profile.sup || ""; $("#acBaseAtt").value = profile.baseAtt || ""; $("#acBase").value = profile.base || ""; $("#acNew").value = "";
+  $("#acctWho").textContent = `${profile.name} · ${profile.id}`; setMsg("#acMsg");
+  $("#acctPeriod").textContent = `Internship: ${periodText(myAcct())}. Ask your admin to change these dates.`;
+  $("#acctCard").classList.remove("hide"); $("#clockArea").classList.add("hide");
+});
+$("#acCancel").addEventListener("click", () => { $("#acctCard").classList.add("hide"); $("#clockArea").classList.remove("hide"); });
+$("#acSave").addEventListener("click", async () => {
+  if (!db || !profile) return;
+  const nw = $("#acNew").value;
+  if (nw && nw.length < 4) { setMsg("#acMsg","bad","Your PIN must be at least 4 characters."); return; }
+  setMsg("#acMsg","",`<span class="spin"></span> Saving…`);
+  try {
+    const patch = {dept:$("#acDept").value.trim(), sup:$("#acSup").value.trim(), baseAtt:$("#acBaseAtt").value, base:$("#acBase").value.trim()};
+    await db.doc("accounts/" + profile.id).update(patch);
+    if (nw && !demo) await api("/api/pin-set", {pin:nw}, true);
+    profile = {...profile, ...patch};
+    $("#acctCard").classList.add("hide"); $("#clockArea").classList.remove("hide");
+    renderAll(); toast(nw ? "Details and PIN saved" : "Details saved");
+  } catch (er) { setMsg("#acMsg","bad", er && er.userMsg ? esc(er.userMsg) : saveErr(er)); }
+});
+
+function renderProfile(){
+  if (!profile) return;
+  $("#whoAv").textContent = profile.name.split(/\s+/).map(w => w[0]).slice(0,2).join("").toUpperCase();
+  $("#whoName").textContent = profile.name;
+  $("#whoSub").textContent = [profile.id, profile.dept, profile.sup && "Reporting Superior: " + profile.sup, profile.baseAtt && "Base: " + baseText(profile)].filter(Boolean).join(" · ");
+  $("#logWho").textContent = `${profile.name} · ${profile.id}`;
+  $("#asLine").textContent = `Stamping as ${profile.name}`;
+}
+
+/* ---------- admin: approvals & invites ---------- */
+let invites = [], unsubInv = null;
+function subscribeInvites(){ if (unsubInv || !db) return; unsubInv = db.collection("invites").limit(1000).onSnapshot(s => { invites = s.docs.map(d => ({email:d.id, ...d.data()})); renderInvites(); }, () => {}); }
+function renderInvites(){
+  const el = $("#invList"); if (!el) return;
+  const open = invites.filter(i => !accounts.some(a => a.email === i.email));
+  el.innerHTML = open.length ? "Waiting to sign up: " + open.map(i => `<span class="invchip">${esc(i.email)}<button data-uninv="${esc(i.email)}" title="Remove">×</button></span>`).join("") : "";
+  el.querySelectorAll("[data-uninv]").forEach(b => b.onclick = async () => { try { await db.doc("invites/" + b.dataset.uninv).delete(); } catch(e){ toast("Couldn't remove"); } });
+}
+$("#invAdd").addEventListener("click", async () => {
+  const e = normEmail($("#invEmail").value);
+  if (!isGmail(e)) { setMsg("#invMsg","bad","Enter a Gmail address."); return; }
+  try {
+    await db.doc("invites/" + e).set({addedAt:Date.now(), addedBy: fbEmail() || "admin"});
+    const a = accounts.find(x => x.email === e);
+    if (a && a.status === "pending") await db.doc("accounts/" + e).update({status:"active", approvedAt:Date.now()});
+    $("#invEmail").value = ""; setMsg("#invMsg","ok", a && a.status === "pending" ? `✓ ${esc(e)} was waiting and is now approved.` : `✓ ${esc(e)} will be approved automatically when they sign up.`);
+  } catch(er){ setMsg("#invMsg","bad", saveErr(er)); }
+});
+function renderPendingAccts(){
+  const el = $("#pendAccts"); if (!el) return;
+  const pend = accounts.filter(a => a.status === "pending").sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
+  $("#pendAcctCount").textContent = pend.length; $("#pendAcctCount").classList.toggle("hide", !pend.length);
+  el.innerHTML = pend.length ? `<div style="font-weight:700;color:var(--red);font-size:14px;margin-bottom:4px">Waiting for approval (${pend.length})</div>` + pend.map(a => `<div class="ci" data-pe="${esc(a.email)}"><div class="ci-h"><div><b>${esc(a.name)}</b> <span class="sub">${esc(a.email)}</span>
+      <div class="sub">${esc(a.dept || "No department")} · ${a.sup ? "Reports to " + esc(a.sup) : "No reporting superior given"} · ${esc(baseText(a) || "No base location")}</div>
+      <div class="sub">Internship ${esc(periodText(a))} · signed up ${a.createdAt ? fDT.format(new Date(a.createdAt)) : ""} with ${a.signIn === "pin" ? "Gmail + PIN" : "Google"}</div></div><span class="badge b-pend">Pending</span></div>
+      ${a.signIn === "pin" ? `<div class="warnline">Signed up with a PIN, so Google hasn't confirmed they own this Gmail. Check it's really them before approving.</div>` : ""}
+      <div class="split" style="margin-top:10px"><button class="btn sm" data-pa="approve">Approve</button><button class="btn ghost sm" data-pa="reject">Reject</button></div></div>`).join("") : "";
+  el.querySelectorAll("[data-pa]").forEach(b => b.addEventListener("click", async () => {
+    const email = b.closest("[data-pe]").dataset.pe, ok = b.dataset.pa === "approve";
+    if (!ok && b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Tap again to reject"; return; }
+    try { await db.doc("accounts/" + email).update(ok ? {status:"active", approvedAt:Date.now()} : {status:"rejected", decidedAt:Date.now()}); toast(ok ? "Account approved" : "Account rejected"); }
+    catch(er){ toast("Couldn't save"); }
+  }));
+}
+
+/* ---------- reporting superior: accounts ---------- */
+function subscribeAccounts(){
+  if (unsubAccts || !db) return;
+  unsubAccts = db.collection("accounts").limit(1000).onSnapshot(s => { accounts = s.docs.map(d => d.data()); renderAccounts(); renderSup(); renderToday(); }, () => {});
+}
+const fDT = new Intl.DateTimeFormat("en-MY",{timeZone:TZ,day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:true});
+function renderAccounts(){
+  const body = $("#acctBody"); if (!body) return;
+  renderPendingAccts(); renderInvites();
+  const list = accounts.filter(a => (a.status || "active") === "active").sort((a,b) => (a.name||"").localeCompare(b.name||""));
+  if (!list.length) { body.innerHTML = `<tr><td colspan="8" class="empty">No intern accounts yet.</td></tr>`; return; }
+  body.innerHTML = list.map(a => {
+    const ed = acctEdit && acctEdit.email === a.email ? acctEdit : null;
+    const tools = ed && ed.mode === "dates" ? `<div class="inline-edit"><input class="inp" type="date" id="aeStart" value="${esc(startOf(a))}"><input class="inp" type="date" id="aeEnd" value="${esc(a.endDate || "")}"><button class="btn sm" data-act="savedates">Save</button><button class="btn ghost sm" data-act="cancel">Cancel</button></div>`
+      : ed ? (ed.mode === "pin"
+      ? `<div class="inline-edit"><input class="inp" type="password" id="aeVal" placeholder="New PIN (min 4)"><button class="btn sm" data-act="savepin">Save</button><button class="btn ghost sm" data-act="cancel">Cancel</button></div>`
+      : `<div class="inline-edit"><input class="inp" id="aeVal" value="${esc(a.name)}"><button class="btn sm" data-act="savename">Save</button><button class="btn ghost sm" data-act="cancel">Cancel</button></div>`)
+      : `<div class="split"><button class="btn ghost sm" data-act="pin">Reset PIN</button><button class="btn ghost sm" data-act="name">Rename</button><button class="btn ghost sm" data-act="dates">Dates</button><button class="link" data-act="del">Remove</button></div>`;
+    return `<tr data-email="${esc(a.email)}"><td><b>${esc(a.name)}</b></td><td>${esc(a.email)}</td><td>${esc(a.dept || "—")}<div class="sub">${esc(a.sup || "")}</div></td><td>${esc(baseText(a) || "—")}</td><td>${esc(periodText(a))}</td>
+      <td>${a.createdAt ? fDT.format(new Date(a.createdAt)) : "—"}</td><td>${a.lastLogin ? fDT.format(new Date(a.lastLogin)) : "—"}</td><td>${tools}<div class="sub" data-msg></div></td></tr>`;
+  }).join("");
+  body.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", async () => {
+    const tr = b.closest("tr"), email = tr.dataset.email, act = b.dataset.act, msg = tr.querySelector("[data-msg]");
+    const ref = db.doc("accounts/" + email);
+    if (act === "savedates") {
+      const st = $("#aeStart").value, en = $("#aeEnd").value;
+      if (!st) { msg.textContent = "Start date is required."; return; }
+      if (en && en < st) { msg.textContent = "End date must be after the start date."; return; }
+      try { await ref.update({startDate:st, endDate:en}); acctEdit = null; toast("Internship dates saved"); renderAccounts(); } catch(er){ msg.textContent = "Couldn't save."; }
+      return;
+    }
+    if (act === "pin" || act === "name" || act === "dates") { acctEdit = {email, mode:act}; renderAccounts(); setTimeout(() => { const i = $("#aeVal"); i && i.focus(); }, 30); return; }
+    if (act === "cancel") { acctEdit = null; renderAccounts(); return; }
+    if (act === "del") {
+      if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Tap again to remove"; return; }
+      try { if (demo) await ref.delete(); else await api("/api/account-delete", {email}, true); toast("Account removed"); } catch(er){ msg.textContent = (er && er.userMsg) || "Couldn't remove."; }
+      return;
+    }
+    const v = $("#aeVal").value;
+    try {
+      if (act === "savepin") {
+        if (v.length < 4) { msg.textContent = "PIN must be at least 4 characters."; return; }
+        if (!demo) await api("/api/pin-set", {email, pin:v}, true);
+        toast("PIN reset. Give the intern their new PIN.");
+      } else {
+        const name = v.trim().replace(/\s+/g, " "); if (!name) { msg.textContent = "Name can't be empty."; return; }
+        await ref.update({name}); toast("Name updated");
+      }
+      acctEdit = null; renderAccounts();
+    } catch(er){ msg.textContent = er && er.userMsg ? er.userMsg : "Couldn't save."; }
+  }));
+}
+
+/* ---------- form behaviour ---------- */
+function syncFormUI(){
+  const o = OPT[$("#att").value];
+  const leaveMode = o && (o.kind === "leave" || o.kind === "mc");
+  $("#outletWrap").classList.toggle("hide", !o || !o.needs);
+  $("#outletHint").textContent = o && o.kind === "half" ? "Type HQ or the outlet name for this session." : "Type the outlet name, e.g. US Pizza Setia City Mall.";
+  $("#punchCard").classList.toggle("hide", !!leaveMode && !(todayRec && todayRec.events && todayRec.events.clockIn));
+  $("#leaveCard").classList.toggle("hide", !leaveMode && !(todayRec && todayRec.leave) && !pendingLeaveToday());
+  $("#mcWrap").classList.toggle("hide", !(o && o.kind === "mc"));
+  $("#leaveType").parentElement && ($("#leaveType").classList.toggle("hide", o && o.kind === "mc"), $("#leaveType").previousElementSibling.classList.toggle("hide", o && o.kind === "mc"));
+  $("#leaveTitle").textContent = o && o.kind === "mc" ? "Medical leave (MC)" : "Full-day leave";
+}
+$("#att").addEventListener("change", () => { touchedForm = true; $("#att").classList.remove("err"); pendingConfirm = null; syncFormUI(); renderClock(); });
+$("#outlet").addEventListener("input", () => { touchedForm = true; $("#outlet").classList.remove("err"); });
+$("#outlet").addEventListener("change", () => renderClock());
+
+function validateLocation(){
+  const o = OPT[$("#att").value];
+  if (!o) { $("#att").classList.add("err"); return "Choose your attendance / location first."; }
+  if (o.kind === "leave" || o.kind === "mc") return "You've picked a leave option. Choose a working location to clock.";
+  if (o.needs && !$("#outlet").value.trim()) { $("#outlet").classList.add("err"); $("#outlet").focus(); return "Please specify the outlet name or session."; }
+  return null;
+}
+
+/* ---------- punching ---------- */
+$$(".punch").forEach(b => b.addEventListener("click", () => punch(b.dataset.k)));
+function setMsg(id, cls, html){ const m = $(id); m.className = "msg " + (cls||""); m.innerHTML = html || ""; }
+
+async function punch(k, confirmed){
+  if (busy) return;
+  if (!db) { setMsg("#punchMsg","bad","Can't reach the shared database right now, so nothing was saved. Check that you're signed in and try again."); return; }
+  const err = validateLocation();
+  if (err) { setMsg("#punchMsg","bad",esc(err)); return; }
+  const e = (todayRec && todayRec.events) || {};
+  const o = OPT[$("#att").value];
+  if (k === "clockOut" && !confirmed && o.kind === "full" && !e.lunchOut) {
+    pendingConfirm = "clockOut";
+    setMsg("#punchMsg","warn",`You haven't recorded lunch today. Clock out anyway?<div class="row"><button class="btn sm" id="cfYes">Yes, clock out</button><button class="btn ghost sm" id="cfNo">Cancel</button></div>`);
+    $("#cfYes").onclick = () => punch("clockOut", true);
+    $("#cfNo").onclick = () => { pendingConfirm = null; setMsg("#punchMsg"); };
+    return;
+  }
+  busy = true;
+  const btn = document.querySelector(`.punch[data-k="${k}"]`);
+  btn.querySelector(".p-time").innerHTML = `<span class="spin"></span>`;
+  setMsg("#punchMsg","",`<span class="spin"></span> Getting your location and saving…`);
+  const t = Date.now();
+  const gps = await getGPS(); lastGps = gps;
+  const ev = {t, attendance:o.v, attendanceLabel:o.label, state:o.state, outlet:$("#outlet").value.trim(), note:$("#note").value.trim(), gps, srv: db.serverTime ? db.serverTime() : Date.now()};
+  const top = {attendance:o.v, state:o.state, outlet:ev.outlet, name:profile.name, dept:profile.dept||"", supervisor:profile.sup||"", updatedAt:t};
+  const base = todayRec ? {...todayRec, ...top, events:{...(todayRec.events || {}), [k]:ev}} : {internId:profile.id, date:today, createdAt:t, ...top, events:{[k]:ev}};
+  if (uid) top.uid = base.uid = uid;
+  try {
+    if (todayRec) await db.doc(recPath()).update({...top, events:{[k]:ev}});
+    else await db.doc(recPath()).set(base);
+    todayRec = base;
+    $("#note").value = "";
+    pendingConfirm = null;
+    setMsg("#punchMsg","ok",`✓ ${KLABEL[k]} recorded at <b>${tStr(t)}</b> · ${esc(locShort(base))}${gps.ok ? "" : " · GPS not captured"}`);
+    toast(`${KLABEL[k]} · ${tStr(t)}`);
+  } catch (er) {
+    setMsg("#punchMsg","bad", saveErr(er));
+  } finally { busy = false; renderClock(); }
+}
+function saveErr(er){
+  const c = er && er.code;
+  if (c === "invalid_argument" || c === "permission-denied") return "You don't have permission to save this. Try signing out and in again, or ask your admin.";
+  if (c === "quota_exceeded") return "The attendance database is full. Please tell your reporting superior.";
+  return "Couldn't save. Check your connection and try again." + (er && er.message ? ` <span class="sub">(${esc(er.message)})</span>` : "");
+}
+const recPath = (id = profile.id, d = today) => `records/${id}__${d}`;
+
+/* ---------- leave ---------- */
+$("#leaveSubmit").addEventListener("click", async () => {
+  const o = OPT[$("#att").value];
+  if (todayRec && todayRec.events && todayRec.events.clockIn) { setMsg("#leaveMsg","bad","You've already clocked in today. For a part day, ask your admin."); return; }
+  const ok = await submitLeave({type: o.kind === "mc" ? "Medical" : $("#leaveType").value, from:today, to:today, reason:$("#leaveReason").value.trim(), file:$("#mcFile").files[0]}, "#leaveMsg");
+  if (ok) { $("#leaveReason").value = ""; $("#mcFile").value = ""; renderClock(); }
+});
+$("#goPlanLeave").addEventListener("click", () => openLeaveForm());
+
+/* ---------- render: clock tab ---------- */
+function renderClock(){
+  if (!profile) return;
+  $("#workDate").textContent = fLong.format(keyDate(today));
+  $("#ruleLine").textContent = `Start ${hhmm12(settings.startTime)} · Lunch ${settings.lunchMinutes} min`;
+  const r = todayRec || {date:today, events:{}};
+  const e = r.events || {};
+  const a = analyse(r);
+  const badge = $("#statusBadge");
+  badge.className = "badge b-" + a.status; badge.textContent = a.statusText + (a.status === "lunch" && e.lunchOut ? ` since ${tStr(e.lunchOut.t)}` : a.status === "work" && e.clockIn ? ` since ${tStr(e.clockIn.t)}` : "");
+
+  // prefill form from today's record
+  if (todayRec && !touchedForm) {
+    if (todayRec.attendance && $("#att").value !== todayRec.attendance) $("#att").value = todayRec.attendance;
+    if (todayRec.outlet != null && !$("#outlet").value) $("#outlet").value = todayRec.outlet;
+  } else if (!todayRec && !touchedForm && profile.baseAtt && OPT[profile.baseAtt]) {
+    $("#att").value = profile.baseAtt;
+    $("#outlet").value = profile.base || "";
+  }
+  const usingBase = profile.baseAtt && $("#att").value === profile.baseAtt && $("#outlet").value.trim() === (profile.base || "");
+  $("#baseHint").classList.toggle("hide", !profile.baseAtt || !!r.leave);
+  $("#baseHint").innerHTML = usingBase ? `📌 Your base location is filled in. Change it if you're somewhere else today.` : `📌 Base location: ${esc(baseText(profile))}. <button type="button" class="link" id="useBase">Use base location</button>`;
+  const ub = $("#useBase"); if (ub) ub.onclick = () => { $("#att").value = profile.baseAtt; $("#outlet").value = profile.base || ""; $("#att").classList.remove("err"); $("#outlet").classList.remove("err"); touchedForm = true; renderClock(); };
+  syncFormUI();
+
+  const onLunch = e.lunchOut && !e.lunchIn;
+  const enabled = {
+    clockIn: !e.clockIn && !r.leave,
+    lunchOut: !!e.clockIn && !e.lunchOut && !e.clockOut,
+    lunchIn: !!e.lunchOut && !e.lunchIn && !e.clockOut,
+    clockOut: !!e.clockIn && !e.clockOut && !onLunch,
+  };
+  KEYS.forEach(k => {
+    const b = document.querySelector(`.punch[data-k="${k}"]`);
+    const done = !!e[k];
+    b.classList.toggle("done", done);
+    b.classList.toggle("ready", !done && enabled[k] && !!db && todayLoaded);
+    b.disabled = done || !enabled[k] || !db || !todayLoaded;
+    b.querySelector(".p-time").textContent = done ? tStr(e[k].t) : "--:--";
+    b.querySelector(".p-where").textContent = done ? (e[k].attendance === "HQ" ? "HQ" : (e[k].outlet || e[k].state)) : " ";
+    let tk = b.querySelector(".tick");
+    if (done && !tk) { tk = document.createElement("span"); tk.className = "tick"; tk.textContent = "✓"; b.appendChild(tk); }
+    if (!done && tk) tk.remove();
+  });
+
+  // leave states: approved (record has leave) / pending request / none
+  const pendT = pendingLeaveToday();
+  if (r.leave) {
+    const q = myLeave.find(x => x.id === r.leave.requestId);
+    $("#leaveForm").classList.add("hide"); $("#leaveDone").classList.remove("hide");
+    $("#leaveCard").classList.remove("hide");
+    $("#leaveDone").innerHTML = `<div class="msg ok" style="display:block">✓ ${esc(r.leave.type)} leave ${r.leave.markedBy ? "recorded by your admin" : "approved"}${r.leave.mcName ? " · MC: " + esc(r.leave.mcName) : ""}<br><span class="sub">${esc(r.leave.reason)}</span></div>${q ? `<div style="margin-top:10px"><button class="btn ghost sm" id="leaveWithdraw">Cancel today's leave</button></div>` : ""}`;
+    if (q) $("#leaveWithdraw").onclick = async ev => {
+      if (ev.target.dataset.armed !== "1") { ev.target.dataset.armed = "1"; ev.target.textContent = "Tap again to cancel"; return; }
+      try { await cancelLeave(q); touchedForm = false; $("#att").value = ""; toast("Leave cancelled"); renderClock(); } catch(er){ setMsg("#leaveMsg","bad", saveErr(er)); }
+    };
+  } else if (pendT) {
+    $("#leaveForm").classList.add("hide"); $("#leaveDone").classList.remove("hide");
+    $("#leaveCard").classList.remove("hide");
+    $("#leaveDone").innerHTML = `<div class="msg warn" style="display:block">⏳ <b>${esc(pendT.type)} leave</b> ${pendT.from === pendT.to ? "for today" : esc(rangeText(pendT.from, pendT.to))} is waiting for your admin's approval.<br><span class="sub">${esc(pendT.reason)}</span></div><div style="margin-top:10px"><button class="btn ghost sm" id="leaveCancelReq">Cancel request</button></div>`;
+    $("#leaveCancelReq").onclick = async () => { try { await cancelLeave(pendT); toast("Request cancelled"); } catch(er){ setMsg("#leaveMsg","bad", saveErr(er)); } };
+    if (!e.clockIn) { badge.className = "badge b-pend"; badge.textContent = "Leave pending approval"; }
+  } else { $("#leaveForm").classList.remove("hide"); $("#leaveDone").classList.add("hide"); }
+
+  // summary
+  const lunchAllow = +settings.lunchMinutes || 0;
+  $("#summary").innerHTML = [
+    stat("Clocked in", e.clockIn ? tStr(e.clockIn.t) : "—", a.lateMin ? `Late by ${dur(a.lateMin)}` : (e.clockIn ? "On time" : `Start ${hhmm12(settings.startTime)}`), a.lateMin ? "alert" : ""),
+    stat("Lunch", a.lunchMin != null ? dur(a.lunchMin) : "—", `Allowance ${lunchAllow} min` + (onLunch ? ` · ${Math.max(0, Math.round(lunchAllow - a.lunchMin))} min left` : ""), a.lunchMin != null && a.lunchMin > lunchAllow + .5 ? "warnc" : ""),
+    stat("Hours worked", a.workedMin != null ? dur(a.workedMin) : "—", e.clockOut ? "Final" : (e.clockIn ? "Live, lunch excluded" : "")),
+    stat("Clocked out", e.clockOut ? tStr(e.clockOut.t) : "—", e.clockOut ? "" : (settings.endTime ? `End ${hhmm12(settings.endTime)}` : "")),
+  ].join("");
+  const notExp = profile ? notExpectedReason(myAcct(), today) : "";
+  $("#sumNote").textContent = r.leave ? "On leave today" : notExp ? `${notExp}, no need to clock in today` : "";
+  const items = KEYS.filter(k => e[k]).map(k => {
+    const x = e[k];
+    return `<li><div class="tl-t">${tStr(x.t)}</div><div><div class="tl-k">${KLABEL[k]}</div>${corrNote(x)}<div class="tl-d">${esc(OPT[x.attendance] ? OPT[x.attendance].icon + " " + (x.attendance === "HQ" ? "HQ, Wisma Conlay" : x.state + (x.outlet ? " · " + x.outlet : "")) : "")}</div><div class="tl-d">📍 ${gpsLink(x.gps)}</div>${x.note ? `<div class="tl-d">📝 ${esc(x.note)}</div>` : ""}</div></li>`;
+  });
+  $("#timeline").innerHTML = items.length ? items.join("") : `<li class="empty" style="display:block">${todayLoaded || !db ? "No stamps yet today." : '<span class="spin"></span> Loading today…'}</li>`;
+}
+const stat = (k, v, s, cls) => `<div class="stat ${cls||""}"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s||"")}</div></div>`;
+
+/* ---------- render: log tab ---------- */
+function rowCells(r, a){
+  const e = r.events || {};
+  const lunch = r.leave ? "—" : (e.lunchOut ? `${tStr(e.lunchOut.t)}–${e.lunchIn ? tStr(e.lunchIn.t) : "…"}<div class="sub">${dur(a.lunchMin)}</div>` : "—");
+  return `<td>${esc(fShort.format(keyDate(r.date)))}</td>
+    <td>${OPT[r.attendance] ? OPT[r.attendance].icon : ""} ${esc(locShort(r))}</td>
+    <td>${r.leave ? "—" : tStr(e.clockIn && e.clockIn.t)}</td><td>${lunch}</td>
+    <td>${r.leave ? "—" : tStr(e.clockOut && e.clockOut.t)}</td><td>${r.leave ? "—" : dur(a.workedMin)}</td><td>${flagHtml(a, pendingFor(r.internId, r.date))}</td>
+    <td>${r.leave ? "" : `<button class="btn ghost sm" data-fix="${esc(r.date)}">Fix</button>`}</td>`;
+}
+function renderLog(){
+  if (!profile) { $("#logBody").innerHTML = `<tr><td colspan="7" class="empty">Set up your profile on the Clock tab first.</td></tr>`; $("#logStats").innerHTML = ""; return; }
+  const recs = myRows().sort((x,y) => y.date.localeCompare(x.date));
+  const an = recs.map(r => [r, analyse(r)]);
+  const worked = an.reduce((s,[r,a]) => s + (a.workedMin || 0), 0);
+  const days = an.filter(([r]) => r.events && r.events.clockIn).length;
+  const absent = an.filter(([,a]) => a.status === "absent" && a.statusText === "Absent").length;
+  const rate = days + absent ? Math.round(days / (days + absent) * 100) : null;
+  $("#logStats").innerHTML = [
+    stat("Attendance", rate == null ? "—" : rate + "%", `${days} days present`, rate != null && rate < 90 ? "alert" : ""),
+    stat("Absences", absent, `${an.filter(([r]) => r.leave).length} leave / MC days`, absent ? "alert" : ""),
+    stat("Total hours", dur(worked), days ? `Avg ${dur(worked/days)} / day` : ""),
+    stat("Late days", an.filter(([,a]) => a.lateMin > 0).length, "", an.some(([,a]) => a.lateMin > 0) ? "alert" : ""),
+  ].join("");
+  $("#logBody").innerHTML = an.length ? an.map(([r,a]) => `<tr>${rowCells(r,a)}</tr>`).join("") : `<tr><td colspan="8" class="empty">No records yet.</td></tr>`;
+  $$("#logBody [data-fix]").forEach(b => b.addEventListener("click", () => openCorrection(b.dataset.fix)));
+}
+
+/* ---------- CSV ---------- */
+function toCSV(recs){
+  const head = ["Date","Intern ID","Name","Department","Reporting Superior","Attendance","Location","Outlet","Clock In","Lunch Out","Lunch In","Clock Out","Lunch (min)","Worked (h)","Late (min)","Flags","Clock-in GPS","Clock-out GPS","Notes","Leave type","Leave reason","MC file"];
+  const q = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  const g = x => x && x.gps && x.gps.ok ? `${x.gps.lat},${x.gps.lng} (±${x.gps.acc}m)` : (x ? "not captured" : "");
+  const t = x => x ? fT.format(new Date(x.t)) : "";
+  const rows = recs.map(r => {
+    const e = r.events || {}, a = analyse(r), o = OPT[r.attendance] || {};
+    return [r.date, r.internId, r.name, r.dept, r.supervisor, o.label || "", o.state || "", r.outlet,
+      t(e.clockIn), t(e.lunchOut), t(e.lunchIn), t(e.clockOut),
+      a.lunchMin != null ? Math.round(a.lunchMin) : "", a.workedMin != null ? (a.workedMin/60).toFixed(2) : "", a.lateMin ? Math.round(a.lateMin) : "",
+      a.flags.map(f => f.t).join("; "), g(e.clockIn), g(e.clockOut),
+      KEYS.filter(k => e[k] && e[k].note).map(k => `${KLABEL[k]}: ${e[k].note}`).join(" | "),
+      r.leave ? r.leave.type : "", r.leave ? r.leave.reason : "", r.leave && r.leave.mcName ? r.leave.mcName : ""].map(q).join(",");
+  });
+  return [head.join(","), ...rows].join("\n");
+}
+async function exportCSV(recs, name, copyOnly){
+  const csv = toCSV(recs);
+  if (!copyOnly && downloads) {
+    try { await downloads.save({filename:name, data:csv}); return; } catch(e) { if (e && /declin|cancel|abort/i.test(e.code + e.message)) return; }
+  }
+  try { await navigator.clipboard.writeText(csv); toast("CSV copied. Paste it into Excel or Google Sheets."); }
+  catch(e) { toast("Couldn't copy. Try the Download button."); }
+}
+$("#logDl").addEventListener("click", () => exportCSV(myRows().sort((a,b)=>a.date.localeCompare(b.date)), `attendance_${profile ? profile.id : "me"}.csv`));
+$("#logCopy").addEventListener("click", () => exportCSV(myRows().sort((a,b)=>a.date.localeCompare(b.date)), "", true));
+$("#supDl").addEventListener("click", () => exportCSV(filteredRecs(), `usp_intern_attendance_${$("#fFrom").value}_to_${$("#fTo").value}.csv`));
+$("#supCopy").addEventListener("click", () => exportCSV(filteredRecs(), "", true));
+
+/* ---------- PIN ---------- */
+async function hashPin(pin, salt){
+  const data = new TextEncoder().encode(salt + "::" + pin);
+  try { const h = await crypto.subtle.digest("SHA-256", data); return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2,"0")).join(""); }
+  catch(e) { let h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (const c of data) { h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } return "x" + (h1>>>0).toString(16) + (h2>>>0).toString(16); }
+}
+const canEdit = () => { if (demo) return true; try { return !!(user && user.canEdit()); } catch(e){ return false; } };
+function renderGate(){
+  if (supUnlocked) { $("#supGate").classList.add("hide"); $("#supDash").classList.remove("hide"); renderSup(); return; }
+  $("#supGate").classList.remove("hide"); $("#supDash").classList.add("hide");
+  const gb = $("#gateBody");
+  if (!db) { gb.innerHTML = `<p class="hint">Connecting to the shared database…</p>`; return; }
+  if (!canEdit()) { gb.innerHTML = `<p class="hint">${profile ? "Only admins can open this tab. Ask the owner to add your Gmail to the admin list." : "Sign in on the Clock tab first. Only admins can open this tab."}</p>`; return; }
+  if (adminPin && adminPin.pinHash) {
+    gb.innerHTML = `<p class="hint">Enter the admin PIN or password.</p><form id="gateForm"><input type="password" class="inp pin" id="gatePin" autocomplete="current-password" style="margin-top:6px"><button class="btn" style="width:100%;margin-top:10px">Unlock</button></form><div class="msg" id="gateMsg"></div>`;
+    $("#gateForm").addEventListener("submit", async ev => {
+      ev.preventDefault();
+      const h = await hashPin($("#gatePin").value, adminPin.pinSalt || "");
+      if (h === adminPin.pinHash) { supUnlocked = true; sess.set("usp_sup", h); renderGate(); }
+      else { setMsg("#gateMsg","bad","Incorrect PIN."); $("#gatePin").value = ""; }
+    });
+    setTimeout(() => { const p = $("#gatePin"); p && p.focus(); }, 50);
+  } else if (canEdit()) {
+    gb.innerHTML = `<p class="hint">You're an admin. You can also add an extra PIN for this tab under <b>PIN protection</b>.</p><button class="btn" id="gateOpen" style="width:100%;margin-top:8px">Open dashboard</button>`;
+    $("#gateOpen").onclick = () => { supUnlocked = true; renderGate(); };
+  } else {
+    gb.innerHTML = `<p class="hint">The admin PIN hasn't been set up yet. Ask the page owner to set one.</p>`;
+  }
+}
+$("#supLock").addEventListener("click", () => { supUnlocked = false; sess.del("usp_sup"); if (unsubAll) { unsubAll(); unsubAll = null; } if (unsubAccts) { unsubAccts(); unsubAccts = null; } if (unsubAllCorr) { unsubAllCorr(); unsubAllCorr = null; allCorr = []; } if (unsubTodayAll) { unsubTodayAll(); unsubTodayAll = null; todayAll = []; } if (unsubAllLeave) { unsubAllLeave(); unsubAllLeave = null; allLeave = []; } if (unsubInv) { unsubInv(); unsubInv = null; } renderGate(); });
+
+/* ---------- reporting superior ---------- */
+function setRange(from, to){ $("#fFrom").value = from; $("#fTo").value = to; subscribeAll(); }
+$$(".chip[data-q]").forEach(c => c.addEventListener("click", () => {
+  const q = c.dataset.q;
+  if (q === "today") setRange(today, today);
+  if (q === "week") setRange(weekStart(today), today);
+  if (q === "month") setRange(today.slice(0,8) + "01", today);
+}));
+$("#fFrom").addEventListener("change", subscribeAll);
+$("#fTo").addEventListener("change", subscribeAll);
+$("#fIntern").addEventListener("change", renderSup);
+$("#fState").addEventListener("change", renderSup);
+$("#fFlag").addEventListener("click", () => { flagOnly = !flagOnly; $("#fFlag").setAttribute("aria-pressed", flagOnly); renderSup(); });
+
+function filteredRecs(){
+  const iv = $("#fIntern").value, sv = $("#fState").value;
+  return teamRows().filter(r => {
+    if (iv && r.internId !== iv) return false;
+    const o = OPT[r.synthetic ? r.baseAtt : r.attendance] || {};
+    if (sv === "absent") return analyse(r).status === "absent";
+    if (sv === "half" && o.kind !== "half") return false;
+    if (sv === "leave" && !r.leave) return false;
+    if (sv && sv !== "half" && sv !== "leave" && (r.leave || o.state !== sv)) return false;
+    if (flagOnly && !isFlagged(analyse(r))) return false;
+    return true;
+  }).sort((a,b) => b.date.localeCompare(a.date) || a.name.localeCompare(b.name));
+}
+let openRow = null;
+function renderSup(){
+  if (!supUnlocked) return;
+  // intern filter options
+  const ivSel = $("#fIntern"), cur = ivSel.value;
+  const interns = [...new Map([...accounts.map(a => [a.email, a.name]), ...allRecs.map(r => [r.internId, r.name])]).entries()].sort((a,b) => (a[1]||"").localeCompare(b[1]||""));
+  ivSel.innerHTML = `<option value="">All interns (${interns.length})</option>` + interns.map(([id,n]) => `<option value="${esc(id)}">${esc(n)} · ${esc(id)}</option>`).join("");
+  ivSel.value = interns.some(([id]) => id === cur) ? cur : "";
+  $$(".chip[data-q]").forEach(c => {
+    const q = c.dataset.q, f = $("#fFrom").value, t = $("#fTo").value;
+    c.setAttribute("aria-pressed", t === today && ((q === "today" && f === today) || (q === "week" && f === weekStart(today) && f !== today) || (q === "month" && f === today.slice(0,8)+"01" && f !== today && f !== weekStart(today))));
+  });
+
+  const recs = filteredRecs();
+  const an = recs.map(r => [r, analyse(r)]);
+  const todays = todayAll.map(r => analyse(r));
+  const cnt = fn => an.filter(fn).length;
+  const present = cnt(([r]) => r.events && r.events.clockIn), absentN = cnt(([,a]) => a.status === "absent" && a.statusText === "Absent");
+  const rate = present + absentN ? Math.round(present / (present + absentN) * 100) : null;
+  $("#supStats").innerHTML = [
+    stat("On duty now", todays.filter(a => a.status === "work").length, `${todays.filter(a => a.status === "lunch").length} on lunch`),
+    stat("Not in yet", notInYet().length, "today, after " + hhmm12(settings.startTime), notInYet().length ? "alert" : ""),
+    stat("Absences", absentN, "in this date range", absentN ? "alert" : ""),
+    stat("Attendance rate", rate == null ? "—" : rate + "%", `${present} present days`),
+    stat("Late arrivals", cnt(([,a]) => a.lateMin > 0), `after ${hhmm12(settings.startTime)}${+settings.graceMinutes ? " + " + settings.graceMinutes + "m grace" : ""}`, cnt(([,a]) => a.lateMin > 0) ? "alert" : ""),
+    stat("Long lunches", cnt(([,a]) => a.flags.some(f => f.t.startsWith("Lunch +"))), `over ${settings.lunchMinutes} min`, cnt(([,a]) => a.flags.some(f => f.t.startsWith("Lunch +"))) ? "warnc" : ""),
+    stat("Missing clock-out", cnt(([,a]) => a.flags.some(f => f.c === "f-miss")), "past days", cnt(([,a]) => a.flags.some(f => f.c === "f-miss")) ? "alert" : ""),
+    stat("Leave / MC", cnt(([r]) => r.leave), `${cnt(([r]) => r.leave && r.leave.kind === "mc")} MC`),
+  ].join("");
+
+  const body = $("#supBody");
+  if (!an.length) { body.innerHTML = `<tr><td colspan="8" class="empty">${allLoaded ? "No records for this filter." : '<span class="spin"></span> Loading…'}</td></tr>`; return; }
+  body.innerHTML = an.map(([r,a]) => {
+    const id = r.internId + "__" + r.date;
+    const main = `<tr class="row" data-id="${esc(id)}"><td>${esc(fShort.format(keyDate(r.date)))}</td><td><b>${esc(r.name)}</b><div class="sub">${esc(r.internId)}${r.dept ? " · " + esc(r.dept) : ""}</div></td>
+      <td>${OPT[r.attendance] ? OPT[r.attendance].icon : ""} ${esc(locShort(r))}</td>
+      <td>${r.leave ? "—" : tStr(r.events && r.events.clockIn && r.events.clockIn.t)}</td>
+      <td>${r.leave ? "—" : (r.events && r.events.lunchOut ? `${tStr(r.events.lunchOut.t)}–${r.events.lunchIn ? tStr(r.events.lunchIn.t) : "…"}<div class="sub">${dur(a.lunchMin)}</div>` : "—")}</td>
+      <td>${r.leave ? "—" : tStr(r.events && r.events.clockOut && r.events.clockOut.t)}</td><td>${r.leave ? "—" : dur(a.workedMin)}</td><td>${flagHtml(a, pendingFor(r.internId, r.date))}</td></tr>`;
+    return main + (openRow === id ? detailRow(r) : "");
+  }).join("");
+  body.querySelectorAll("tr.row").forEach(tr => tr.addEventListener("click", () => { openRow = openRow === tr.dataset.id ? null : tr.dataset.id; renderSup(); }));
+  body.querySelectorAll("[data-clear]").forEach(b => b.addEventListener("click", async ev => {
+    ev.stopPropagation();
+    const [rid, k] = b.dataset.clear.split("|");
+    const r = allRecs.find(x => x.internId + "__" + x.date === rid); if (!r) return;
+    if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Tap again to clear"; return; }
+    const copy = JSON.parse(JSON.stringify(r)); delete copy._v;
+    if (k === "leave") { await safeDelete("records/" + rid); return; }
+    const was = copy.events[k] ? copy.events[k].t : null;
+    delete copy.events[k]; copy.updatedAt = Date.now(); copy.editedBy = "supervisor";
+    copy.history = [...(copy.history || []), {at:Date.now(), action:"cleared", changes:{[k]:{from:was, to:null}}}];
+    try { await db.doc("records/" + rid).set(copy); toast(`${KLABEL[k]} cleared`); } catch(er){ toast("Couldn't clear: " + (er.code || "error")); }
+  }));
+}
+async function safeDelete(p){ try { await db.doc(p).delete(); toast("Record removed"); } catch(er){ toast("Couldn't remove: " + (er.code || "error")); } }
+function detailRow(r){
+  const e = r.events || {}, rid = r.internId + "__" + r.date;
+  let cells;
+  if (analyse(r).status === "absent") {
+    cells = `<div class="det-c" style="grid-column:1/-1"><b>${r.date === today ? "Not clocked in yet" : "Absent: no stamps and no leave"}</b><div class="s">If this was approved time off, mark it as leave so it stops counting as an absence. If the intern worked but forgot to stamp, ask them to send a correction request.</div>${markLeaveForm(r)}</div>`;
+    return `<tr class="detail"><td colspan="8"><div class="det">${cells}</div>${historyHtml(r)}</td></tr>`;
+  }
+  if (r.leave) {
+    cells = `<div class="det-c"><b>${esc(r.leave.type)} leave</b><div class="s">Submitted ${tStr(r.leave.submittedAt)}</div><div style="margin-top:6px">${esc(r.leave.reason)}</div>
+      ${r.leave.mcAssetId && String(r.leave.mcAssetId).startsWith("demo") ? `<div style="margin-top:6px">📎 ${esc(r.leave.mcName || "MC")} <span class="sub">(sample file)</span></div>` : r.leave.mcAssetId ? `<div style="margin-top:6px">📎 <button class="link" data-mc="${esc(r.leave.mcAssetId)}">${esc(r.leave.mcName || "View MC")}</button></div>` : ""}
+      <div style="margin-top:8px"><button class="btn ghost sm" data-clear="${esc(rid)}|leave">Remove record</button></div></div>`;
+  } else {
+    cells = KEYS.map(k => {
+      const x = e[k];
+      if (!x) return `<div class="det-c"><b>${KLABEL[k]}</b><div class="s">Not recorded</div></div>`;
+      return `<div class="det-c"><b>${KLABEL[k]} · ${tStr(x.t)}</b>${corrNote(x)}<div class="s">${esc(OPT[x.attendance] ? OPT[x.attendance].label : "")}</div>${x.outlet ? `<div>🏪 ${esc(x.outlet)}</div>` : ""}<div class="s">📍 ${gpsLink(x.gps)}</div>${x.note ? `<div class="s">📝 ${esc(x.note)}</div>` : ""}<div style="margin-top:8px"><button class="btn ghost sm" data-clear="${esc(rid)}|${k}">Clear stamp</button></div></div>`;
+    }).join("");
+  }
+  return `<tr class="detail"><td colspan="8"><div class="det">${cells}</div>${historyHtml(r)}</td></tr>`;
+}
+
+/* settings */
+function fillSettingsForm(){
+  LV_LIMITED.forEach(t => { const v = (settings.leaveAllowance || {})[t]; $("#la" + t).value = v == null || v === "" ? "" : v; });
+  renderDays(); renderHolidays();
+  $("#sStart").value = settings.startTime || "09:00";
+  $("#sEnd").value = settings.endTime || "";
+  $("#sLunch").value = settings.lunchMinutes;
+  $("#sGrace").value = settings.graceMinutes || 0;
+  const pinOn = !!(adminPin && adminPin.pinHash);
+  $("#pinState").textContent = pinOn ? "PIN protection is ON. Admins must also enter this PIN to open the Admin tab." : "PIN protection is OFF. Only people on the admin list can open the Admin tab (no extra PIN).";
+  $("#pOff").disabled = !pinOn;
+  $("#pSave").textContent = pinOn ? "Change PIN" : "Set PIN";
+}
+async function saveSettings(patch, msgSel, okText){
+  const next = {...settings, ...patch, updatedAt: Date.now()};
+  try { await db.doc("config/settings").set(next); settings = next; fillSettingsForm(); setMsg(msgSel, "ok", okText); renderAll(); return true; }
+  catch(er){ setMsg(msgSel, "bad", er && er.code === "invalid_argument" ? "Only admins can change settings." : "Couldn't save. Try again."); return false; }
+}
+$("#sSave").addEventListener("click", () => {
+  const start = $("#sStart").value, lunch = parseInt($("#sLunch").value, 10), grace = parseInt($("#sGrace").value || "0", 10), end = $("#sEnd").value;
+  if (!start || isNaN(lunch) || lunch < 0 || isNaN(grace) || grace < 0) { setMsg("#sMsg","bad","Enter a valid start time, lunch minutes and grace minutes."); return; }
+  if (end && hm(end) <= hm(start)) { setMsg("#sMsg","bad","End time must be after the start time."); return; }
+  saveSettings({startTime:start, endTime:end, lunchMinutes:lunch, graceMinutes:grace, workDays:$$("#sDays input:checked").map(i => +i.value), leaveAllowance:readAllowance()}, "#sMsg", `✓ Saved. Start ${hhmm12(start)}, lunch ${lunch} min.`);
+});
+$("#pSave").addEventListener("click", async () => {
+  const a = $("#pNew").value, b = $("#pNew2").value;
+  if (a.length < 4) { setMsg("#pMsg","bad","Use at least 4 characters."); return; }
+  if (a !== b) { setMsg("#pMsg","bad","The two entries don't match."); return; }
+  const salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const h = await hashPin(a, salt);
+  try { await db.doc("config/adminPin").set({pinHash:h, pinSalt:salt, updatedAt:Date.now()}); setMsg("#pMsg","ok","✓ PIN set. Share it only with admins."); $("#pNew").value = $("#pNew2").value = ""; sess.set("usp_sup", h); }
+  catch(er){ setMsg("#pMsg","bad","Only admins can change the PIN."); }
+});
+$("#pOff").addEventListener("click", async () => {
+  if ($("#pOff").dataset.armed !== "1") { $("#pOff").dataset.armed = "1"; $("#pOff").textContent = "Tap again to confirm"; return; }
+  $("#pOff").dataset.armed = ""; $("#pOff").textContent = "Turn PIN off";
+  try { await db.doc("config/adminPin").set({pinHash:null, pinSalt:null, updatedAt:Date.now()}); setMsg("#pMsg","ok","PIN protection turned off."); } catch(er){ setMsg("#pMsg","bad","Only admins can change the PIN."); }
+});
+
+/* ---------- subscriptions ---------- */
+function loadingTimer(onTimeout){ const t = setTimeout(onTimeout, 10000); return () => clearTimeout(t); }
+function subscribeToday(){
+  if (unsubToday) { unsubToday(); unsubToday = null; }
+  todayRec = null; todayLoaded = false;
+  if (!db || !profile) { renderClock(); return; }
+  const clear = loadingTimer(() => { if (!todayLoaded) banner("Still connecting to the attendance database… your data may be out of date."); });
+  unsubToday = db.doc(recPath()).onSnapshot(s => {
+    todayRec = s.exists ? s.data() : null;
+    if (!s.metadata.fromCache) { todayLoaded = true; clear(); banner(dbBanner); }
+    else todayLoaded = true;
+    renderClock();
+  }, er => { clear(); todayLoaded = true; banner("Lost connection to the attendance database. Reload the page to reconnect."); renderClock(); });
+}
+function subscribeMine(){
+  if (unsubMine) { unsubMine(); unsubMine = null; }
+  myRecs = [];
+  if (!db || !profile) return;
+  unsubMine = db.collection("records").where("internId","==",profile.id).limit(1000).onSnapshot(s => {
+    myRecs = s.docs.map(d => d.data()); renderLog();
+  }, () => {});
+}
+let allLoaded = false;
+function subscribeAll(){
+  if (unsubAll) { unsubAll(); unsubAll = null; }
+  allRecs = []; allLoaded = false;
+  if (!db || !supUnlocked) return;
+  let from = $("#fFrom").value || today, to = $("#fTo").value || today;
+  if (from > to) [from, to] = [to, from];
+  const clear = loadingTimer(() => { if (!allLoaded) { allLoaded = true; renderSup(); } });
+  unsubAll = db.collection("records").where("date",">=",from).where("date","<=",to).limit(1000).onSnapshot(s => {
+    allRecs = s.docs.map(d => d.data()); allLoaded = true; clear(); renderSup();
+  }, er => { clear(); allLoaded = true; toast("Couldn't load team records: " + (er.code || "error")); renderSup(); });
+  renderSup();
+}
+let dbBanner = "", unsubSettings = null;
+function renderAll(){ renderProfile(); renderClock(); renderLog(); if (supUnlocked) { renderSup(); renderToday(); } }
+
+// unlock hook: when gate opens, start subscription
+const _renderGate = renderGate;
+renderGate = function(){ _renderGate(); if (supUnlocked && !unsubAll) { if (!$("#fFrom").value) { $("#fFrom").value = today; $("#fTo").value = today; } fillSettingsForm(); subscribeAll(); } if (supUnlocked) { subscribeAccounts(); subscribeAllCorr(); subscribeTodayAll(); subscribeAllLeave(); subscribeInvites(); } };
+
+/* ---------- ATTENDANCE EXPECTATIONS & ABSENCES ---------- */
+const DAYN = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const WHERE_CODES = [["HQ","HQ"],["OUT_KL","KL / Selangor outlets"],["OUT_PNG","Penang"],["OUT_MLK","Malacca"],["OUT_JHR","Johor"]];
+const fDMY = new Intl.DateTimeFormat("en-MY",{timeZone:TZ,day:"numeric",month:"short",year:"numeric"});
+const baseOf = a => a && a.baseAtt ? a.baseAtt : "HQ";
+const startOf = a => a.startDate || (a.createdAt ? dayKey(new Date(a.createdAt)) : today);
+const startMin = () => hm(settings.startTime) + (+settings.graceMinutes || 0);
+const whereText = w => w === "all" ? "All locations" : (w || []).map(c => (WHERE_CODES.find(x => x[0] === c) || [c, c])[1]).join(", ");
+const periodText = a => `${fDMY.format(keyDate(startOf(a)))} – ${a.endDate ? fDMY.format(keyDate(a.endDate)) : "no end date"}`;
+function holidayFor(d, a){ return (settings.holidays || []).find(h => h.date === d && (h.where === "all" || (Array.isArray(h.where) && h.where.includes(baseOf(a))))); }
+function notExpectedReason(a, d){
+  if (!(settings.workDays || [1,2,3,4,5]).includes(keyDate(d).getUTCDay())) return "Not a working day";
+  if (d < startOf(a)) return "Internship hasn't started";
+  if (a.endDate && d > a.endDate) return "Internship has ended";
+  const h = holidayFor(d, a); if (h) return `Public holiday (${h.name})`;
+  return "";
+}
+const expectedOn = (a, d) => !notExpectedReason(a, d);
+function dayRange(from, to){ const out = []; for (let d = from, n = 0; d <= to && n < 400; d = addDays(d, 1), n++) out.push(d); return out; }
+function withAbsences(recs, accts, from, to, leaveReqs){
+  accts = accts.filter(a => (a.status || "active") === "active");
+  const have = new Set(recs.map(r => r.internId + "__" + r.date));
+  const out = [...recs];
+  const last = to > today ? today : to;
+  const tooEarly = klMin(Date.now()) < startMin();
+  const pend = (leaveReqs || []).filter(q => q.status === "pending");
+  for (const a of accts) for (const d of dayRange(from, last)) {
+    if (have.has(a.email + "__" + d) || !expectedOn(a, d)) continue;
+    const pq = pend.find(q => q.internId === a.email && q.from <= d && q.to >= d);
+    if (pq) { out.push({internId:a.email, name:a.name, dept:a.dept || "", supervisor:a.sup || "", date:d, attendance:"", synthetic:true, pendingLeave:pq, baseAtt:a.baseAtt || "", baseOutlet:a.base || "", events:{}}); continue; }
+    if (d === today && tooEarly) continue;
+    out.push({internId:a.email, name:a.name, dept:a.dept || "", supervisor:a.sup || "", date:d, attendance:"", absent:true, synthetic:true, baseAtt:a.baseAtt || "", baseOutlet:a.base || "", events:{}});
+  }
+  return out;
+}
+function teamRows(){ let from = $("#fFrom").value || today, to = $("#fTo").value || today; if (from > to) [from, to] = [to, from]; return withAbsences(allRecs, accounts, from, to, allLeave); }
+const myAcct = () => profile ? {email:profile.id, name:profile.name, dept:profile.dept, sup:profile.sup, baseAtt:profile.baseAtt, base:profile.base, startDate:profile.startDate, endDate:profile.endDate, createdAt:profile.createdAt} : null;
+function myRows(){
+  if (!profile) return [];
+  const a = myAcct(); let from = startOf(a); const min = addDays(today, -120); if (from < min) from = min;
+  return withAbsences(myRecs, [a], from, today, myLeave);
+}
+function notInYet(){
+  if (klMin(Date.now()) < startMin()) return [];
+  return accounts.filter(a => (a.status || "active") === "active" && expectedOn(a, today)).filter(a => { const r = todayAll.find(x => x.internId === a.email); return (!r || (!r.leave && !(r.events && r.events.clockIn))) && !allLeave.some(q => q.status === "pending" && q.internId === a.email && q.from <= today && q.to >= today); });
+}
+function subscribeTodayAll(){
+  if (unsubTodayAll || !db) return;
+  unsubTodayAll = db.collection("records").where("date","==",today).limit(1000).onSnapshot(s => { todayAll = s.docs.map(d => d.data()); renderToday(); renderSup(); }, () => {});
+}
+function renderToday(){
+  const el = $("#tdList"); if (!el || !supUnlocked) return;
+  $("#tdTitle").textContent = "Today · " + fShort.format(keyDate(today));
+  const recFor = a => todayAll.find(x => x.internId === a.email);
+  const actv = accounts.filter(a => (a.status || "active") === "active");
+  const expected = actv.filter(a => expectedOn(a, today));
+  const inN = expected.filter(a => { const r = recFor(a); return r && r.events && r.events.clockIn; }).length;
+  const leaveL = accounts.filter(a => { const r = recFor(a); return r && r.leave; });
+  const off = actv.filter(a => !expectedOn(a, today) && !recFor(a));
+  const ni = notInYet(), nowM = klMin(Date.now());
+  $("#tdSub").textContent = `${expected.length} expected · ${inN} clocked in · ${leaveL.length} on leave` + (off.length ? ` · ${off.length} not scheduled` : "");
+  let html;
+  if (!accounts.length) html = `<div class="empty">No intern accounts yet.</div>`;
+  else if (nowM < startMin()) html = `<div class="empty">The "not clocked in" list starts at ${hhmm12(String(Math.floor(startMin()/60)).padStart(2,"0") + ":" + String(startMin()%60).padStart(2,"0"))}. ${Math.max(0, expected.length - inN - leaveL.length)} still to arrive.</div>`;
+  else if (!ni.length) html = `<div class="empty">${expected.length ? "Everyone expected today has clocked in or is on leave. 🎉" : "No one is expected at work today."}</div>`;
+  else html = `<div style="font-weight:700;color:var(--red);font-size:14px;margin-bottom:2px">Not clocked in yet (${ni.length})</div>` + ni.map(a => `<div class="ni"><div><b>${esc(a.name)}</b><div class="sub">${esc(baseText(a) || "No base location")}${a.sup ? " · Reports to " + esc(a.sup) : ""}</div><div class="sub">${esc(a.email)}</div></div>
+      <div style="text-align:right"><div class="ni-late">${dur(nowM - hm(settings.startTime))} past ${hhmm12(settings.startTime)}</div><button class="link" data-mlopen="${esc(a.email)}">${tdOpen === a.email ? "Close" : "Mark as leave"}</button></div>
+      ${tdOpen === a.email ? `<div style="flex-basis:100%">${markLeaveForm({internId:a.email, date:today})}</div>` : ""}</div>`).join("");
+  if (leaveL.length) html += `<div class="sub" style="margin-top:10px">🏖️ On leave: ${leaveL.map(a => esc(a.name)).join(", ")}</div>`;
+  const pendL = allLeave.filter(q => q.status === "pending" && q.from <= today && q.to >= today && !(recFor({email:q.internId}) || {}).leave);
+  if (pendL.length) html += `<div class="sub" style="margin-top:4px">⏳ Leave waiting for approval: ${pendL.map(q => `${esc(q.name)} (${esc(q.type.toLowerCase())})`).join(", ")}. <button class="link" data-golv>Review</button></div>`;
+  if (off.length) html += `<div class="sub" style="margin-top:4px">💤 Not scheduled today: ${off.map(a => `${esc(a.name)} (${esc(notExpectedReason(a, today).toLowerCase())})`).join(", ")}</div>`;
+  el.innerHTML = html;
+  el.querySelectorAll("[data-mlopen]").forEach(b => b.onclick = () => { tdOpen = tdOpen === b.dataset.mlopen ? null : b.dataset.mlopen; renderToday(); });
+  el.querySelectorAll("[data-golv]").forEach(b => b.onclick = () => $("#adminLeaveCard").scrollIntoView({behavior:"smooth"}));
+}
+function markLeaveForm(r){
+  return `<div class="inline-edit ml" data-iid="${esc(r.internId)}" data-date="${esc(r.date)}" style="margin-top:8px">
+    <select class="inp" data-mltype style="flex:0 1 180px"><option value="Annual">Annual leave</option><option value="Emergency">Emergency leave</option><option value="University">University leave</option><option value="Medical">Medical (MC)</option><option value="Unpaid">Unpaid leave</option></select>
+    <input class="inp" data-mlreason placeholder="Reason / note (required)"><button class="btn sm" data-markleave>Mark as leave</button></div><div class="sub" data-mlmsg></div>`;
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest && e.target.closest("[data-markleave]"); if (!b) return;
+  e.stopPropagation();
+  const box = b.closest(".ml"), msg = box.nextElementSibling;
+  const type = box.querySelector("[data-mltype]").value, reason = box.querySelector("[data-mlreason]").value.trim();
+  if (!reason) { msg.textContent = "Add a short reason."; return; }
+  const iid = box.dataset.iid, date = box.dataset.date, acct = accounts.find(a => a.email === iid) || {};
+  const ref = db.doc(`records/${iid}__${date}`);
+  try {
+    const snap = await ref.get(), ex = snap.exists ? snap.data() : null;
+    if (ex && ex.events && ex.events.clockIn) { msg.textContent = "This intern has already clocked in that day."; return; }
+    const now = Date.now(), mc = type === "Medical";
+    await ref.set({internId:iid, name:acct.name || (ex && ex.name) || iid, dept:acct.dept || "", supervisor:acct.sup || "", date, createdAt: ex ? ex.createdAt : now, updatedAt:now,
+      attendance: mc ? "MC" : "LEAVE", state: mc ? "Medical leave" : "Leave", outlet:"", events:{},
+      leave:{kind: mc ? "mc" : "leave", type, reason, submittedAt:now, markedBy:"admin"},
+      history:[...((ex && ex.history) || []), {at:now, action:"leave", reason:`${type} leave: ${reason}`, changes:{}}]});
+    const rid = `${iid}__${date}__adm${now.toString(36)}`;
+    await db.doc("leaveRequests/" + rid).set({id:rid, internId:iid, name:acct.name || iid, dept:acct.dept || "", sup:acct.sup || "", type, kind: mc ? "mc" : "leave", from:date, to:date, days:[date], approvedDays:[date], reason, status:"approved", source:"admin", createdAt:now, decidedAt:now, decisionNote:"Marked as leave by admin"});
+    await ref.update({leave:{kind: mc ? "mc" : "leave", type, reason, submittedAt:now, markedBy:"admin", requestId:rid}});
+    tdOpen = null; toast(`${acct.name || "Intern"} marked as ${type.toLowerCase()} leave`);
+  } catch(er){ msg.textContent = "Couldn't save."; }
+});
+function renderDays(){
+  const wd = settings.workDays || [1,2,3,4,5];
+  $("#sDays").innerHTML = [1,2,3,4,5,6,0].map(d => `<label><input type="checkbox" value="${d}" ${wd.includes(d) ? "checked" : ""}> ${DAYN[d]}</label>`).join("");
+}
+function renderHolidays(){
+  const list = [...(settings.holidays || [])].sort((a,b) => a.date.localeCompare(b.date));
+  $("#holList").innerHTML = list.length ? list.map(h => `<div class="hol ${h.date < today ? "past" : ""}"><span class="tnum">${esc(fDMY.format(keyDate(h.date)))}</span><span><b>${esc(h.name)}</b><div class="sub">${esc(whereText(h.where))}</div></span><button class="link" data-hdel="${esc(h.date)}|${esc(h.name)}">Remove</button></div>`).join("") : `<div class="empty">No holidays set.</div>`;
+  if (!$("#hWhere").children.length) $("#hWhere").innerHTML = WHERE_CODES.map(([c, n]) => `<label><input type="checkbox" value="${c}" checked> ${n}</label>`).join("");
+  $$("#holList [data-hdel]").forEach(b => b.onclick = async () => {
+    if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Tap again"; return; }
+    const [d, n] = b.dataset.hdel.split("|");
+    await saveSettings({holidays:(settings.holidays || []).filter(h => !(h.date === d && h.name === n))}, "#hMsg", "Holiday removed.");
+  });
+}
+$("#hAdd").addEventListener("click", async () => {
+  const d = $("#hDate").value, n = $("#hName").value.trim(), codes = $$("#hWhere input:checked").map(i => i.value);
+  if (!d || !n) { setMsg("#hMsg","bad","Enter a date and a name."); return; }
+  if (!codes.length) { setMsg("#hMsg","bad","Tick at least one location."); return; }
+  const where = codes.length === WHERE_CODES.length ? "all" : codes;
+  if (await saveSettings({holidays:[...(settings.holidays || []), {date:d, name:n, where}]}, "#hMsg", `✓ Added ${esc(n)}.`)) { $("#hDate").value = ""; $("#hName").value = ""; }
+});
+
+/* ---------- LEAVE REQUESTS (apply ahead, admin approves) ---------- */
+const LV_TYPES = ["Annual","Medical","University","Emergency","Unpaid"];
+const LV_LIMITED = ["Annual","Medical","University","Emergency"];
+const LV_LABEL = {Annual:"Annual", Medical:"Medical (MC)", University:"University", Emergency:"Emergency", Unpaid:"Unpaid"};
+const fDM = new Intl.DateTimeFormat("en-MY",{timeZone:TZ,weekday:"short",day:"numeric",month:"short"});
+const rangeText = (a, b) => a === b ? fDM.format(keyDate(a)) : `${fDM.format(keyDate(a))} – ${fDM.format(keyDate(b))}`;
+const leaveDays = (acct, from, to) => from && to && from <= to ? dayRange(from, to).filter(d => expectedOn(acct, d)) : [];
+const reqDays = q => (q.status === "approved" && q.approvedDays) ? q.approvedDays : (q.days || []);
+const allowanceFor = type => { const v = (settings.leaveAllowance || {})[type]; return v === "" || v == null ? null : +v; };
+function readAllowance(){ const o = {}; LV_LIMITED.forEach(t => { const v = $("#la" + t).value; o[t] = v === "" ? null : Math.max(0, parseInt(v, 10) || 0); }); return o; }
+function usedDays(list, internId, type){
+  const mine = list.filter(q => q.internId === internId && q.type === type);
+  return {approved: mine.filter(q => q.status === "approved").reduce((n, q) => n + reqDays(q).length, 0), pending: mine.filter(q => q.status === "pending").reduce((n, q) => n + reqDays(q).length, 0)};
+}
+const pendingLeaveToday = () => profile ? myLeave.find(q => q.status === "pending" && q.from <= today && q.to >= today) : null;
+const lvStatus = q => q.status === "pending" ? `<span class="badge b-pend">Pending</span>` : q.status === "approved" ? `<span class="badge b-ok">Approved</span>` : q.status === "rejected" ? `<span class="badge b-no">Rejected</span>` : `<span class="badge b-idle">Cancelled</span>`;
+
+async function submitLeave({type, from, to, reason, file}, msgSel){
+  if (!db || !profile || lvBusy) return false;
+  const kind = type === "Medical" ? "mc" : "leave";
+  if (!from || !to) { setMsg(msgSel,"bad","Choose the start and end dates."); return false; }
+  if (to < from) { setMsg(msgSel,"bad","The end date must be on or after the start date."); return false; }
+  const back = addDays(today, -14);
+  if (kind === "mc") {
+    if (to > today) { setMsg(msgSel,"bad","MC leave can't be for future dates. Apply once you have the doctor's MC."); return false; }
+    if (from < back) { setMsg(msgSel,"bad","MC leave can only be submitted up to 14 days after."); return false; }
+  } else if (type === "Emergency") {
+    if (from < back) { setMsg(msgSel,"bad","Emergency leave can only be submitted up to 14 days after."); return false; }
+  } else if (from < today) { setMsg(msgSel,"bad",`${LV_LABEL[type]} leave must start today or later. For past days, ask your admin.`); return false; }
+  const days = leaveDays(myAcct(), from, to);
+  if (!days.length) { setMsg(msgSel,"bad","There are no working days in that range (weekends, public holidays and days outside your internship don't count)."); return false; }
+  if (days.length > 30) { setMsg(msgSel,"bad","Please keep each request to 30 working days or fewer."); return false; }
+  const clash = myLeave.find(q => (q.status === "pending" || q.status === "approved") && q.from <= to && q.to >= from);
+  if (clash) { setMsg(msgSel,"bad",`You already have ${clash.status} leave on ${esc(rangeText(clash.from, clash.to))}. Cancel it first if you need to change it.`); return false; }
+  const worked = days.filter(d => { const r = myRecs.find(x => x.date === d) || (d === today ? todayRec : null); return r && r.events && r.events.clockIn; });
+  if (worked.length) { setMsg(msgSel,"bad",`You already clocked in on ${esc(worked.map(d => fDM.format(keyDate(d))).join(", "))}. Leave those days out.`); return false; }
+  const lim = allowanceFor(type);
+  if (lim != null) { const u = usedDays(myLeave, profile.id, type); if (u.approved + u.pending + days.length > lim) { setMsg(msgSel,"bad",`That's more than your ${LV_LABEL[type].toLowerCase()} leave allowance: ${u.approved} used${u.pending ? `, ${u.pending} pending` : ""}, ${Math.max(0, lim - u.approved - u.pending)} left of ${lim}. Talk to your admin.`); return false; } }
+  if (!reason || reason.length < 3) { setMsg(msgSel,"bad","Please add a reason."); return false; }
+  if (kind === "mc" && !file) { setMsg(msgSel,"bad","Please attach your MC photo or PDF."); return false; }
+  lvBusy = true; setMsg(msgSel,"",`<span class="spin"></span> Sending…`);
+  try {
+    let mc = {};
+    if (file) {
+      if (!assets) throw {code:"no_assets"};
+      if (file.size > 20*1024*1024) throw {code:"too_big"};
+      const up = await assets.upload(file);
+      mc = {mcAssetId:up.id, mcName:file.name};
+    }
+    const now = Date.now(), id = `${profile.id}__${from}__${now.toString(36)}`;
+    const doc = {id, internId:profile.id, name:profile.name, dept:profile.dept || "", sup:profile.sup || "", type, kind, from, to, days, reason, ...mc, status:"pending", createdAt:now};
+    if (uid) doc.uid = uid;
+    await db.doc("leaveRequests/" + id).set(doc);
+    setMsg(msgSel,"ok",`✓ Sent. ${days.length} working day${days.length > 1 ? "s" : ""} of ${LV_LABEL[type].toLowerCase()} leave waiting for approval.`);
+    toast("Leave request sent");
+    return true;
+  } catch (er) {
+    if (er.code === "too_big") setMsg(msgSel,"bad","That file is over 20 MB. Try a smaller photo.");
+    else if (er.code === "too_big_pdf") setMsg(msgSel,"bad","That PDF is too large (max 700 KB). Take a photo of the MC instead.");
+    else if (er.code === "no_assets") setMsg(msgSel,"bad","File upload isn't available right now. Try again later.");
+    else setMsg(msgSel,"bad", saveErr(er));
+    return false;
+  } finally { lvBusy = false; }
+}
+async function cancelLeave(q){
+  if (q.status === "approved") {
+    for (const d of reqDays(q).filter(d => d >= today)) {
+      const ref = db.doc(`records/${q.internId}__${d}`), sn = await ref.get();
+      if (sn.exists && sn.data().leave && sn.data().leave.requestId === q.id && !(sn.data().events && sn.data().events.clockIn)) await ref.delete();
+    }
+  }
+  await db.doc("leaveRequests/" + q.id).update({status:"cancelled", decidedAt:Date.now()});
+}
+
+// ---- intern: form + list
+function openLeaveForm(){
+  if (!profile) return;
+  showTab("log");
+  $("#lvForm").classList.remove("hide");
+  if (!$("#lvFrom").value || $("#lvFrom").value < addDays(today, -14)) { $("#lvFrom").value = addDays(today, 1); $("#lvTo").value = addDays(today, 1); }
+  setMsg("#lvMsg"); updateLvDays();
+  $("#myLeaveCard").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function updateLvDays(){
+  const type = $("#lvType").value, from = $("#lvFrom").value, to = $("#lvTo").value;
+  $("#lvMcWrap").classList.toggle("hide", type !== "Medical");
+  if (from && (!to || to < from)) $("#lvTo").value = from;
+  const days = profile ? leaveDays(myAcct(), $("#lvFrom").value, $("#lvTo").value) : [];
+  const lim = allowanceFor(type), u = profile ? usedDays(myLeave, profile.id, type) : {approved:0, pending:0};
+  const span = from && $("#lvTo").value ? dayRange(from, $("#lvTo").value).length : 0;
+  $("#lvDays").innerHTML = !from ? "" : `<b>${days.length} working day${days.length === 1 ? "" : "s"}</b>${span > days.length ? ` (${span - days.length} weekend / holiday day${span - days.length > 1 ? "s" : ""} not counted)` : ""}${lim != null ? ` · ${Math.max(0, lim - u.approved - u.pending)} of ${lim} ${LV_LABEL[type].toLowerCase()} days left` : ""}`;
+}
+["#lvType","#lvFrom","#lvTo"].forEach(sel => $(sel).addEventListener("change", updateLvDays));
+$("#lvOpen").addEventListener("click", openLeaveForm);
+$("#lvCancel").addEventListener("click", () => $("#lvForm").classList.add("hide"));
+$("#lvSubmit").addEventListener("click", async () => {
+  const ok = await submitLeave({type:$("#lvType").value, from:$("#lvFrom").value, to:$("#lvTo").value, reason:$("#lvReason").value.trim(), file:$("#lvMc").files[0]}, "#lvMsg");
+  if (ok) { $("#lvReason").value = ""; $("#lvMc").value = ""; setTimeout(() => { $("#lvForm").classList.add("hide"); setMsg("#lvMsg"); }, 1800); }
+});
+function renderMyLeave(){
+  const el = $("#lvList"); if (!el || !profile) return;
+  const shown = LV_TYPES.filter(t => t === "Annual" || t === "Medical" || allowanceFor(t) != null || myLeave.some(q => q.type === t && (q.status === "approved" || q.status === "pending")));
+  $("#lvBalances").innerHTML = shown.slice(0, 4).map(t => { const u = usedDays(myLeave, profile.id, t), lim = allowanceFor(t);
+    return stat(LV_LABEL[t], lim != null ? `${Math.max(0, lim - u.approved)} left` : `${u.approved} used`, lim != null ? `${u.approved} used of ${lim}${u.pending ? ` · ${u.pending} pending` : ""}` : (u.pending ? `${u.pending} pending · no limit` : "no limit set"), lim != null && u.approved >= lim ? "warnc" : ""); }).join("");
+  const list = myLeave.filter(q => q.status !== "cancelled" || q.decidedAt > Date.now() - 7*864e5).sort((a, b) => b.createdAt - a.createdAt);
+  el.innerHTML = list.length ? list.map(q => {
+    const days = reqDays(q), future = days.some(d => d >= today);
+    return `<div class="ci"><div class="ci-h"><div><b>${esc(LV_LABEL[q.type] || q.type)} leave</b> · ${esc(rangeText(q.from, q.to))}<div class="sub">${days.length} working day${days.length === 1 ? "" : "s"} · sent ${fDT2.format(new Date(q.createdAt))}${q.source === "admin" ? " · recorded by admin" : ""}</div></div>${lvStatus(q)}</div>
+      <div class="reason">${esc(q.reason)}</div>
+      ${q.skippedDays && q.skippedDays.length ? `<div class="warnline">Not applied to ${esc(q.skippedDays.map(d => fDM.format(keyDate(d))).join(", "))}: you clocked in those days.</div>` : ""}
+      ${q.decisionNote && q.source !== "admin" ? `<div class="sub" style="margin-top:6px"><b>Admin:</b> ${esc(q.decisionNote)}</div>` : ""}
+      ${q.status === "pending" || (q.status === "approved" && future && q.source !== "admin") ? `<div style="margin-top:8px"><button class="btn ghost sm" data-lvcancel="${esc(q.id)}">${q.status === "pending" ? "Cancel request" : "Cancel leave"}</button></div>` : ""}</div>`;
+  }).join("") : `<div class="empty">No leave yet.</div>`;
+  el.querySelectorAll("[data-lvcancel]").forEach(b => b.addEventListener("click", async () => {
+    if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Tap again to confirm"; return; }
+    const q = myLeave.find(x => x.id === b.dataset.lvcancel); if (!q) return;
+    try { await cancelLeave(q); toast(q.status === "pending" ? "Request cancelled" : "Leave cancelled"); } catch(er){ toast("Couldn't cancel"); }
+  }));
+}
+
+// ---- admin
+$$(".chip[data-lv]").forEach(c => c.addEventListener("click", () => { lvView = c.dataset.lv; $$(".chip[data-lv]").forEach(x => x.setAttribute("aria-pressed", x === c)); renderAdminLeave(); }));
+function renderAdminLeave(){
+  const el = $("#adminLeaveList"); if (!el) return;
+  const pend = allLeave.filter(q => q.status === "pending");
+  $("#lvCount").textContent = pend.length; $("#lvCount").classList.toggle("hide", !pend.length);
+  const list = lvView === "pending" ? pend.sort((a, b) => a.from.localeCompare(b.from))
+    : lvView === "upcoming" ? allLeave.filter(q => q.status === "approved" && q.to >= today).sort((a, b) => a.from.localeCompare(b.from))
+    : allLeave.filter(q => q.status === "approved" || q.status === "rejected" || q.status === "cancelled").sort((a, b) => (b.decidedAt || 0) - (a.decidedAt || 0)).slice(0, 40);
+  if (!list.length) { el.innerHTML = `<div class="empty">${lvView === "pending" ? "No leave waiting for approval. 🎉" : lvView === "upcoming" ? "No approved leave coming up." : "Nothing decided yet."}</div>`; return; }
+  el.innerHTML = list.map(q => {
+    const days = reqDays(q), lim = allowanceFor(q.type), u = usedDays(allLeave, q.internId, q.type);
+    const worked = q.status === "pending" ? days.filter(d => { const r = allRecs.concat(todayAll).find(x => x.internId === q.internId && x.date === d); return r && r.events && r.events.clockIn; }) : [];
+    const over = q.status === "pending" && lim != null && u.approved + days.length > lim;
+    return `<div class="ci" data-lid="${esc(q.id)}"><div class="ci-h"><div><b>${esc(q.name)}</b> <span class="sub">${esc(q.internId)}</span>
+        <div><b>${esc(LV_LABEL[q.type] || q.type)} leave</b> · ${esc(rangeText(q.from, q.to))} · ${days.length} working day${days.length === 1 ? "" : "s"}</div>
+        <div class="sub">Sent ${fDT2.format(new Date(q.createdAt))}${q.sup ? " · Reports to " + esc(q.sup) : ""}${q.source === "admin" ? " · recorded by admin" : ""}</div></div>${lvStatus(q)}</div>
+      <div class="reason">${esc(q.reason)}</div>
+      ${q.mcAssetId ? (String(q.mcAssetId).startsWith("demo") ? `<div class="sub" style="margin-top:6px">📎 ${esc(q.mcName || "MC")} (sample file)</div>` : `<div style="margin-top:6px">📎 <button class="link" data-mc="${esc(q.mcAssetId)}">${esc(q.mcName || "View MC")}</button></div>`) : (q.kind === "mc" ? `<div class="warnline">No MC attached.</div>` : "")}
+      <div class="sub" style="margin-top:6px">${esc(LV_LABEL[q.type] || q.type)} leave so far: ${u.approved} approved${u.pending ? `, ${u.pending} pending` : ""}${lim != null ? ` · allowance ${lim}` : " · no limit set"}</div>
+      ${over ? `<div class="warnline">Approving this goes over the ${lim}-day allowance.</div>` : ""}
+      ${worked.length ? `<div class="warnline">Already clocked in on ${esc(worked.map(d => fDM.format(keyDate(d))).join(", "))}. Those days will be skipped.</div>` : ""}
+      ${q.skippedDays && q.skippedDays.length ? `<div class="warnline">Skipped ${esc(q.skippedDays.map(d => fDM.format(keyDate(d))).join(", "))} (already clocked in).</div>` : ""}
+      ${q.status === "pending" ? `<div class="inline-edit" style="margin-top:10px"><input class="inp" data-lnote placeholder="Note to intern (optional)"><button class="btn sm" data-lapprove>Approve</button><button class="btn ghost sm" data-lreject>Reject</button></div><div class="msg" data-lmsg></div>`
+        : q.status === "approved" && lvView === "upcoming" ? `<div style="margin-top:8px"><button class="btn ghost sm" data-lcancel>Cancel this leave</button></div><div class="msg" data-lmsg></div>`
+        : `<div class="sub" style="margin-top:6px">${q.status === "approved" ? "Approved" : q.status === "rejected" ? "Rejected" : "Cancelled"} ${q.decidedAt ? fDT2.format(new Date(q.decidedAt)) : ""}${q.decisionNote ? ` · “${esc(q.decisionNote)}”` : ""}</div>`}</div>`;
+  }).join("");
+  el.querySelectorAll("[data-lapprove],[data-lreject],[data-lcancel]").forEach(b => b.addEventListener("click", async () => {
+    if (lvBusy) return;
+    const box = b.closest(".ci"), q = allLeave.find(x => x.id === box.dataset.lid), msg = box.querySelector("[data-lmsg]"), noteEl = box.querySelector("[data-lnote]"), note = noteEl ? noteEl.value.trim() : "";
+    if (b.hasAttribute("data-lcancel") && b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Tap again to cancel"; return; }
+    lvBusy = true; msg.className = "msg"; msg.innerHTML = `<span class="spin"></span> Saving…`;
+    try {
+      if (b.hasAttribute("data-lapprove")) { const r = await approveLeave(q, note); toast(`Approved · ${r.done.length} day${r.done.length === 1 ? "" : "s"} of leave for ${q.name.split(" ")[0]}${r.skipped.length ? ` (${r.skipped.length} skipped)` : ""}`); }
+      else if (b.hasAttribute("data-lreject")) { await db.doc("leaveRequests/" + q.id).update({status:"rejected", decidedAt:Date.now(), decisionNote:note}); toast("Leave rejected"); }
+      else { await cancelLeave(q); toast("Leave cancelled"); }
+    } catch(er){ msg.className = "msg bad"; msg.textContent = (er && er.userMsg) || "Couldn't save. Try again."; }
+    finally { lvBusy = false; }
+  }));
+}
+async function approveLeave(q, note){
+  const acct = accounts.find(a => a.email === q.internId) || {email:q.internId, name:q.name, dept:q.dept, sup:q.sup, startDate:"2000-01-01"};
+  const days = (q.days && q.days.length) ? q.days : leaveDays(acct, q.from, q.to);
+  const done = [], skipped = [];
+  for (const d of days) {
+    const ref = db.doc(`records/${q.internId}__${d}`), sn = await ref.get(), ex = sn.exists ? sn.data() : null;
+    if (ex && ex.events && ex.events.clockIn) { skipped.push(d); continue; }
+    const now = Date.now();
+    await ref.set({internId:q.internId, name:q.name, dept:q.dept || "", supervisor:q.sup || "", date:d, createdAt: ex ? ex.createdAt : now, updatedAt:now,
+      attendance: q.kind === "mc" ? "MC" : "LEAVE", state: q.kind === "mc" ? "Medical leave" : "Leave", outlet:"", events:{},
+      leave:{kind:q.kind, type:q.type, reason:q.reason, submittedAt:q.createdAt, approvedAt:now, requestId:q.id, ...(q.mcAssetId ? {mcAssetId:q.mcAssetId, mcName:q.mcName || ""} : {})},
+      history:[...((ex && ex.history) || []), {at:now, action:"leave", reason:`${q.type} leave approved: ${q.reason}`, changes:{}}]});
+    done.push(d);
+  }
+  await db.doc("leaveRequests/" + q.id).update({status:"approved", decidedAt:Date.now(), decisionNote:note || "", approvedDays:done, skippedDays:skipped});
+  return {done, skipped};
+}
+function subscribeMyLeave(){
+  if (unsubMyLeave) { unsubMyLeave(); unsubMyLeave = null; }
+  myLeave = [];
+  if (!db || !profile) { renderMyLeave(); return; }
+  unsubMyLeave = db.collection("leaveRequests").where("internId","==",profile.id).limit(500).onSnapshot(s => { myLeave = s.docs.map(d => d.data()); renderMyLeave(); renderClock(); renderLog(); if ($("#lvForm") && !$("#lvForm").classList.contains("hide")) updateLvDays(); }, () => {});
+}
+function subscribeAllLeave(){
+  if (unsubAllLeave || !db) return;
+  unsubAllLeave = db.collection("leaveRequests").limit(2000).onSnapshot(s => { allLeave = s.docs.map(d => d.data()); renderAdminLeave(); renderToday(); renderSup(); }, () => {});
+}
+
+/* ---------- CORRECTION REQUESTS ---------- */
+let myCorr = [], allCorr = [], unsubMyCorr = null, unsubAllCorr = null, corrView = "pending", corrBusy = false;
+const tsOf = (d, hhmm) => Date.parse(`${d}T${hhmm}:00+08:00`);
+const hhmmOf = t => fHM.format(new Date(t));
+const fDT2 = new Intl.DateTimeFormat("en-MY",{timeZone:TZ,day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:true});
+$("#crAtt").innerHTML = `<option value="">Select location…</option>` + OPTIONS.filter(o => o.kind === "full" || o.kind === "half").map(o => `<option value="${o.v}">${o.icon} ${esc(o.label)}</option>`).join("");
+
+function pendingFor(internId, date){
+  return myCorr.concat(allCorr).some(c => c.status === "pending" && c.internId === internId && c.date === date);
+}
+function historyHtml(r){
+  const h = r.history || [];
+  if (!h.length) return r.editedBy ? `<div class="sub" style="margin-top:6px">Edited by an admin.</div>` : "";
+  return `<div style="margin-top:10px"><b style="font-size:13px">Edit history</b>${h.slice().reverse().map(x => {
+    const ch = Object.entries(x.changes || {}).map(([k, v]) => `${KLABEL[k]}: ${v.from ? tStr(v.from) : "none"} → ${v.to ? tStr(v.to) : "cleared"}`).join(" · ");
+    return `<div class="sub" style="margin-top:3px">${fDT2.format(new Date(x.at))} · ${x.action === "cleared" ? "Cleared by admin" : x.action === "leave" ? "Marked as leave by admin" : "Correction approved"}${ch ? " · " + esc(ch) : ""}${x.reason ? ` · “${esc(x.reason)}”` : ""}</div>`;
+  }).join("")}</div>`;
+}
+
+// ---- intern: form
+function openCorrection(date){
+  if (!profile) return;
+  showTab("log");
+  $("#corrCard").classList.remove("hide");
+  $("#crDate").max = today;
+  $("#crDate").value = date || today;
+  KEYS.forEach(k => $("#cr-" + k).value = "");
+  $("#crReason").value = ""; setMsg("#crMsg");
+  fillCorrCurrent();
+  $("#corrCard").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function fillCorrCurrent(){
+  const d = $("#crDate").value;
+  const rec = myRecs.find(r => r.date === d) || (d === today ? todayRec : null);
+  const e = (rec && rec.events) || {};
+  $("#crNewDay").classList.toggle("hide", !!(rec && rec.attendance) || !d);
+  if (!rec || !rec.attendance) { $("#crAtt").value = profile.baseAtt || ""; $("#crOutlet").value = profile.base || ""; }
+  $("#crCurrent").innerHTML = !d ? "—" : rec && rec.leave ? `On ${esc(rec.leave.type)} leave that day` : rec && rec.attendance ? `${OPT[rec.attendance] ? OPT[rec.attendance].icon : ""} ${esc(locShort(rec))}` : "No record that day";
+  KEYS.forEach(k => { $("#cur-" + k).textContent = e[k] ? "Now: " + tStr(e[k].t) : "Now: not recorded"; });
+}
+$("#crDate").addEventListener("change", fillCorrCurrent);
+$("#crOpen").addEventListener("click", () => openCorrection());
+$("#fixToday").addEventListener("click", () => openCorrection(today));
+$("#crCancel").addEventListener("click", () => $("#corrCard").classList.add("hide"));
+
+function orderProblem(times){
+  const seq = KEYS.filter(k => times[k] != null);
+  for (let i = 1; i < seq.length; i++) if (times[seq[i]] <= times[seq[i-1]]) return `${KLABEL[seq[i]]} must be after ${KLABEL[seq[i-1]]}.`;
+  if (times.lunchIn != null && times.lunchOut == null) return "Add a Lunch Out time to go with Lunch In.";
+  if ((times.lunchOut != null || times.clockOut != null) && times.clockIn == null) return "Add a Clock In time too.";
+  return null;
+}
+$("#crSubmit").addEventListener("click", async () => {
+  if (corrBusy) return;
+  if (!db) { setMsg("#crMsg","bad","Can't reach the database right now."); return; }
+  const d = $("#crDate").value;
+  if (!d || d > today) { setMsg("#crMsg","bad","Choose today or a past date."); return; }
+  const rec = myRecs.find(r => r.date === d) || (d === today ? todayRec : null);
+  if (rec && rec.leave) { setMsg("#crMsg","bad","That day is recorded as leave. Withdraw the leave first, or ask your admin."); return; }
+  const changes = {};
+  KEYS.forEach(k => { const v = $("#cr-" + k).value; if (v) changes[k] = v; });
+  if (!Object.keys(changes).length) { setMsg("#crMsg","bad","Enter at least one corrected time."); return; }
+  const now = Date.now();
+  for (const k in changes) if (tsOf(d, changes[k]) > now) { setMsg("#crMsg","bad",`${KLABEL[k]} can't be in the future.`); return; }
+  const merged = {};
+  KEYS.forEach(k => { merged[k] = changes[k] ? tsOf(d, changes[k]) : (rec && rec.events && rec.events[k] ? rec.events[k].t : null); });
+  const prob = orderProblem(merged);
+  if (prob) { setMsg("#crMsg","bad", esc(prob)); return; }
+  const reason = $("#crReason").value.trim();
+  if (reason.length < 5) { $("#crReason").classList.add("err"); setMsg("#crMsg","bad","Please explain what happened."); return; }
+  const isNew = !(rec && rec.attendance);
+  const att = isNew ? $("#crAtt").value : rec.attendance;
+  if (isNew && !att) { setMsg("#crMsg","bad","Choose where you were that day."); return; }
+  if (isNew && OPT[att].needs && !$("#crOutlet").value.trim()) { setMsg("#crMsg","bad","Enter the outlet name."); return; }
+  if (myCorr.some(c => c.status === "pending" && c.date === d)) { setMsg("#crMsg","bad","You already have a pending request for this date. Cancel it first if you need to change it."); return; }
+  const id = `${profile.id}__${d}__${now.toString(36)}`;
+  const current = {};
+  KEYS.forEach(k => { current[k] = rec && rec.events && rec.events[k] ? rec.events[k].t : null; });
+  const doc = {id, internId:profile.id, name:profile.name, dept:profile.dept || "", sup:profile.sup || "", date:d, changes, current, reason,
+    newDay:isNew, attendance:att, outlet: isNew ? $("#crOutlet").value.trim() : (rec.outlet || ""), status:"pending", createdAt:now};
+  if (uid) doc.uid = uid;
+  corrBusy = true; setMsg("#crMsg","",`<span class="spin"></span> Sending…`);
+  try {
+    await db.doc("corrections/" + id).set(doc);
+    $("#corrCard").classList.add("hide"); setMsg("#crMsg"); toast("Correction request sent"); renderLog();
+  } catch (er) { setMsg("#crMsg","bad", saveErr(er)); }
+  finally { corrBusy = false; }
+});
+
+const statusBadge = c => c.status === "pending" ? `<span class="badge b-pend">Pending</span>` : c.status === "approved" ? `<span class="badge b-ok">Approved</span>` : c.status === "rejected" ? `<span class="badge b-no">Rejected</span>` : `<span class="badge b-idle">Cancelled</span>`;
+function changesHtml(c){
+  return `<div class="chg">${KEYS.filter(k => c.changes[k]).map(k => `<span>${KLABEL[k]}</span><span><span class="from">${c.current && c.current[k] ? tStr(c.current[k]) : "not recorded"}</span> → <span class="to">${tStr(tsOf(c.date, c.changes[k]))}</span></span>`).join("")}</div>`;
+}
+function renderMyCorr(){
+  const el = $("#myCorrList"); if (!el) return;
+  const list = [...myCorr].filter(c => c.status !== "cancelled").sort((a,b) => b.createdAt - a.createdAt);
+  el.innerHTML = list.length ? list.map(c => `<div class="ci"><div class="ci-h"><div><b>${esc(fShort.format(keyDate(c.date)))}</b> <span class="sub">· sent ${fDT2.format(new Date(c.createdAt))}</span>${c.newDay ? ` <span class="sub">· new day</span>` : ""}</div>${statusBadge(c)}</div>
+    ${changesHtml(c)}<div class="reason">${esc(c.reason)}</div>
+    ${c.decisionNote ? `<div class="sub" style="margin-top:6px"><b>Admin:</b> ${esc(c.decisionNote)}</div>` : ""}
+    ${c.status === "pending" ? `<div style="margin-top:8px"><button class="btn ghost sm" data-cancel="${esc(c.id)}">Cancel request</button></div>` : ""}</div>`).join("")
+    : `<div class="empty">No requests yet. Use <b>Fix</b> on a day in your log, or the button above.</div>`;
+  el.querySelectorAll("[data-cancel]").forEach(b => b.addEventListener("click", async () => {
+    if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Tap again to cancel"; return; }
+    try { await db.doc("corrections/" + b.dataset.cancel).update({status:"cancelled", decidedAt:Date.now()}); toast("Request cancelled"); } catch(er){ toast("Couldn't cancel"); }
+  }));
+}
+
+// ---- admin
+$$(".chip[data-cv]").forEach(c => c.addEventListener("click", () => { corrView = c.dataset.cv; $$(".chip[data-cv]").forEach(x => x.setAttribute("aria-pressed", x === c)); renderAdminCorr(); }));
+function renderAdminCorr(){
+  const el = $("#adminCorrList"); if (!el) return;
+  const pend = allCorr.filter(c => c.status === "pending");
+  $("#corrCount").textContent = pend.length; $("#corrCount").classList.toggle("hide", !pend.length);
+  const list = corrView === "pending" ? pend.sort((a,b) => a.createdAt - b.createdAt)
+    : allCorr.filter(c => c.status === "approved" || c.status === "rejected").sort((a,b) => (b.decidedAt||0) - (a.decidedAt||0)).slice(0, 30);
+  if (!list.length) { el.innerHTML = `<div class="empty">${corrView === "pending" ? "Nothing waiting for review. 🎉" : "No decided requests yet."}</div>`; return; }
+  el.innerHTML = list.map(c => `<div class="ci" data-cid="${esc(c.id)}"><div class="ci-h"><div><b>${esc(c.name)}</b> <span class="sub">${esc(c.internId)}</span><div class="sub">${esc(fLong.format(keyDate(c.date)))} · sent ${fDT2.format(new Date(c.createdAt))}${c.newDay ? ` · <b>no record that day</b> (${esc(OPT[c.attendance] ? OPT[c.attendance].state : "")}${c.outlet ? " · " + esc(c.outlet) : ""})` : ""}</div></div>${statusBadge(c)}</div>
+    ${changesHtml(c)}<div class="reason">${esc(c.reason)}</div>
+    ${c.status === "pending" ? `<div class="inline-edit" style="margin-top:10px"><input class="inp" data-note placeholder="Note to intern (optional, shown on reject or approve)"><button class="btn sm" data-approve>Approve</button><button class="btn ghost sm" data-reject>Reject</button></div><div class="msg" data-cmsg></div>`
+      : `<div class="sub" style="margin-top:6px">${c.status === "approved" ? "Approved" : "Rejected"} ${c.decidedAt ? fDT2.format(new Date(c.decidedAt)) : ""}${c.decisionNote ? ` · “${esc(c.decisionNote)}”` : ""}</div>`}</div>`).join("");
+  el.querySelectorAll("[data-approve],[data-reject]").forEach(b => b.addEventListener("click", async () => {
+    if (corrBusy) return;
+    const box = b.closest(".ci"), c = allCorr.find(x => x.id === box.dataset.cid), note = box.querySelector("[data-note]").value.trim(), msg = box.querySelector("[data-cmsg]");
+    corrBusy = true; msg.className = "msg"; msg.innerHTML = `<span class="spin"></span> Saving…`;
+    try {
+      if (b.hasAttribute("data-approve")) { await approveCorrection(c, note); toast(`Approved · ${c.name.split(" ")[0]}'s record updated`); }
+      else { await db.doc("corrections/" + c.id).update({status:"rejected", decidedAt:Date.now(), decisionNote:note}); toast("Request rejected"); }
+    } catch (er) { msg.className = "msg bad"; msg.textContent = er && er.userMsg ? er.userMsg : "Couldn't save. Try again."; }
+    finally { corrBusy = false; }
+  }));
+}
+async function approveCorrection(c, note){
+  const ref = db.doc(`records/${c.internId}__${c.date}`);
+  const snap = await ref.get();
+  const now = Date.now();
+  let rec = snap.exists ? snap.data() : {internId:c.internId, name:c.name, dept:c.dept || "", supervisor:c.sup || "", date:c.date, createdAt:now, events:{},
+    attendance:c.attendance, state: OPT[c.attendance] ? OPT[c.attendance].state : "", outlet:c.outlet || ""};
+  if (rec.leave) throw {userMsg:"That day is now recorded as leave, so the times can't be applied. Reject it, or remove the leave first."};
+  rec.events = rec.events || {};
+  const hist = {at:now, action:"approved", correctionId:c.id, reason:c.reason, changes:{}};
+  for (const k of KEYS) {
+    if (!c.changes[k]) continue;
+    const to = tsOf(c.date, c.changes[k]), ex = rec.events[k];
+    hist.changes[k] = {from: ex ? ex.t : null, to};
+    rec.events[k] = ex ? {...ex, t:to, corrected:true, originalT: ex.originalT != null ? ex.originalT : ex.t}
+      : {t:to, attendance:rec.attendance, attendanceLabel: OPT[rec.attendance] ? OPT[rec.attendance].label : "", state:rec.state, outlet:rec.outlet || "", note:"", gps:{ok:false, reason:"added by correction"}, corrected:true, originalT:null};
+  }
+  const times = {}; KEYS.forEach(k => times[k] = rec.events[k] ? rec.events[k].t : null);
+  const prob = orderProblem(times);
+  if (prob) throw {userMsg:`Can't apply: ${prob} The record may have changed since the request was sent. Reject it and ask the intern to resend.`};
+  rec.history = [...(rec.history || []), hist];
+  rec.updatedAt = now;
+  await ref.set(rec);
+  await db.doc("corrections/" + c.id).update({status:"approved", decidedAt:now, decisionNote:note || ""});
+}
+
+function subscribeMyCorr(){
+  if (unsubMyCorr) { unsubMyCorr(); unsubMyCorr = null; }
+  myCorr = [];
+  if (!db || !profile) { renderMyCorr(); return; }
+  unsubMyCorr = db.collection("corrections").where("internId","==",profile.id).limit(500).onSnapshot(s => { myCorr = s.docs.map(d => d.data()); renderMyCorr(); renderLog(); }, () => {});
+}
+function subscribeAllCorr(){
+  if (unsubAllCorr || !db) return;
+  unsubAllCorr = db.collection("corrections").limit(1000).onSnapshot(s => { allCorr = s.docs.map(d => d.data()); renderAdminCorr(); renderSup(); }, () => {});
+}
+
+/* ---------- DEMO MODE: in-memory sample data, never touches the real database ---------- */
+var demo = false;
+let realDb = null, realAssets = null, realBanner = "", realDownloads = null;
+const DEMO_GEO = {HQ:[3.1497,101.7155], OUT_KL:[3.0436,101.4475], OUT_PNG:[5.3337,100.3066], OUT_MLK:[2.1861,102.2500], OUT_JHR:[1.5011,103.7766], HALF_AM:[3.1497,101.7155], HALF_PM:[3.1497,101.7155]};
+
+function makeMemDb(seed){
+  const docs = new Map(Object.entries(seed));
+  const subs = new Set();
+  const clone = o => o == null ? o : JSON.parse(JSON.stringify(o));
+  const meta = {fromCache:false, hasPendingWrites:false};
+  const later = f => setTimeout(f, 0);
+  const notify = () => later(() => subs.forEach(f => f()));
+  const snap = p => { const d = docs.get(p); return {id:p.split("/").pop(), exists:!!d, data:() => clone(d), metadata:meta}; };
+  const docRef = p => ({ id:p.split("/").pop(), path:p,
+    get: async () => snap(p),
+    set: async d => { docs.set(p, clone(d)); notify(); },
+    update: async d => { if (!docs.has(p)) throw {code:"invalid_argument"}; const old = docs.get(p), nd = clone(d); if (nd.events && old.events) nd.events = {...old.events, ...nd.events}; docs.set(p, {...old, ...nd}); notify(); },
+    delete: async () => { docs.delete(p); notify(); },
+    onSnapshot(next){ const f = () => next(snap(p)); subs.add(f); later(f); return () => subs.delete(f); },
+  });
+  const query = (col, filters, lim) => {
+    const depth = col.split("/").length + 1;
+    const run = () => {
+      let arr = [...docs.keys()].filter(p => p.startsWith(col + "/") && p.split("/").length === depth).map(snap);
+      arr = arr.filter(sn => filters.every(([f, op, v]) => { const x = sn.data()[f]; return op === "==" ? x === v : op === ">=" ? x >= v : op === "<=" ? x <= v : op === ">" ? x > v : op === "<" ? x < v : true; }));
+      if (lim) arr = arr.slice(0, lim);
+      return {docs:arr, size:arr.length, empty:!arr.length, metadata:meta, docChanges:() => []};
+    };
+    return { path:col,
+      where:(f, op, v) => query(col, [...filters, [f, op, v]], lim), limit:n => query(col, filters, n), orderBy:() => query(col, filters, lim),
+      get: async () => run(), doc: id => docRef(col + "/" + (id || Math.random().toString(36).slice(2))),
+      onSnapshot(next){ const f = () => next(run()); subs.add(f); later(f); return () => subs.delete(f); } };
+  };
+  return {doc:docRef, collection:c => query(c, [], 0), serverTime: () => Date.now()};
+}
+
+function buildDemo(){
+  let seedN = 20261118; const rnd = () => { seedN = (seedN * 1103515245 + 12345) % 2147483648; return seedN / 2147483648; };
+  const ts = (d, min) => Date.parse(`${d}T00:00:00+08:00`) + Math.round(min) * 60000;
+  const seed = {"config/settings": {startTime:"09:00", endTime:"18:00", lunchMinutes:60, graceMinutes:0}};
+  const people = [
+    {email:"alex.tan.demo@gmail.com", name:"Alex Tan Jia Wei", dept:"Digital & IT", sup:"Farah Aziz", baseAtt:"OUT_KL", base:"US Pizza Setia City Mall"},
+    {email:"aisyah.rahman@gmail.com", name:"Nur Aisyah Rahman", dept:"Marketing", sup:"Farah Aziz", baseAtt:"HQ", base:""},
+    {email:"daniel.limwk@gmail.com", name:"Daniel Lim Wei Keat", dept:"Operations", sup:"Kevin Lee", baseAtt:"OUT_KL", base:"US Pizza Sunway Pyramid"},
+    {email:"priya.nair22@gmail.com", name:"Priya Nair", dept:"Finance", sup:"Kevin Lee", baseAtt:"HQ", base:""},
+    {email:"harith.iskandar@gmail.com", name:"Harith Iskandar", dept:"Operations", sup:"Farah Aziz", baseAtt:"OUT_PNG", base:"US Pizza Queensbay Mall"},
+    {email:"chloe.ongys@gmail.com", name:"Chloe Ong Yi Shan", dept:"Marketing", sup:"Kevin Lee", baseAtt:"OUT_JHR", base:"US Pizza Mid Valley Southkey"},
+  ];
+  // a sign-up waiting for approval, and a pre-approved Gmail that hasn't signed up yet
+  seed["accounts/ongweijie.demo@gmail.com"] = {email:"ongweijie.demo@gmail.com", name:"Ong Wei Jie", dept:"Operations", sup:"Kevin Lee", baseAtt:"OUT_MLK", base:"US Pizza Dataran Pahlawan", startDate:today, endDate:addDays(today, 90), signIn:"pin", status:"pending", createdAt:Date.now() - 3600e3, lastLogin:Date.now() - 3600e3};
+  seed["invites/nurul.huda.demo@gmail.com"] = {addedAt:Date.now() - 864e5, addedBy:"admin"};
+  const notes = ["LRT delay", "Kitchen walkthrough with outlet manager", "Stock count support", "Meeting at HQ in the afternoon", "Traffic jam on Federal Highway", ""];
+  people.forEach((p, i) => {
+    const created = ts(addDays(today, -16), 9*60 + i*7);
+    seed["accounts/" + p.email] = {...p, pinHash:"demo", pinSalt:"demo", createdAt:created, lastLogin: ts(today, 8*60 + 40 + i*4), startDate:addDays(today, -20), endDate:addDays(today, 80)};
+  });
+  const mkEv = (p, att, d, min, noGps, note) => {
+    const o = OPT[att], g = DEMO_GEO[att] || DEMO_GEO.HQ;
+    return {t:ts(d, min), attendance:att, attendanceLabel:o.label, state:o.state, outlet: o.needs ? (o.kind === "half" ? "HQ" : p.base) : "", note:note || "",
+      gps: noGps ? {ok:false, reason:"permission denied"} : {ok:true, lat:+(g[0] + (rnd()-.5)*.001).toFixed(6), lng:+(g[1] + (rnd()-.5)*.001).toFixed(6), acc:6 + Math.round(rnd()*20)}};
+  };
+  const put = (p, d, rec) => { seed[`records/${p.email}__${d}`] = {internId:p.email, name:p.name, dept:p.dept, supervisor:p.sup, date:d, createdAt:Date.now(), updatedAt:Date.now(), outlet:"", events:{}, ...rec}; };
+  const nowMin = klMin(Date.now());
+  for (let off = -20; off <= 0; off++) {
+    const d = addDays(today, off), wd = keyDate(d).getUTCDay();
+    if (wd === 0 || wd === 6) continue;
+    people.forEach((p, i) => {
+      if (DEFAULT_HOLIDAYS.some(h => h.date === d && (h.where === "all" || h.where.includes(p.baseAtt)))) return;
+      if (off < 0 && i !== 0 && rnd() < 0.04) return; // a few unexplained absences
+      if (off === 0) {
+        // today: a mix of live states; the demo intern's day is left empty so you can try the buttons
+        const att = p.baseAtt, o = OPT[att];
+        const st = (rec) => put(p, d, {attendance:att, state:o.state, outlet:p.base, ...rec});
+        if (i === 1 && nowMin > 530) st({events:{clockIn:mkEv(p, att, d, 532)}});
+        if (i === 2 && nowMin > 560) st({events:{clockIn:mkEv(p, att, d, 554, false, "LRT delay"), ...(nowMin > 760 ? {lunchOut:mkEv(p, att, d, Math.min(nowMin - 20, 765))} : {})}});
+        if (i === 3 && nowMin > 540) st({events:{clockIn:mkEv(p, att, d, 536), ...(nowMin > 740 ? {lunchOut:mkEv(p, att, d, 720), lunchIn:mkEv(p, att, d, 762)} : {})}});
+        if (i === 5) put(p, d, {attendance:"MC", state:OPT.MC.state, leave:{kind:"mc", type:"Medical", reason:"Fever, clinic MC for 1 day. Informed Kevin at 7:45 AM.", submittedAt:ts(d, 465), mcAssetId:"demo-mc", mcName:"MC_Klinik_Southkey.jpg"}});
+        return;
+      }
+      const r = rnd();
+      if (r < 0.05) { put(p, d, {attendance:"LEAVE", state:"Leave", leave:{kind:"leave", type: rnd() < .5 ? "University" : "Annual", reason: rnd() < .5 ? "University class test, approved by " + p.sup : "Family event, approved by " + p.sup, submittedAt:ts(d, 480)}}); return; }
+      if (r < 0.08) { put(p, d, {attendance:"MC", state:"Medical leave", leave:{kind:"mc", type:"Medical", reason:"Clinic MC, 1 day", submittedAt:ts(d, 470), mcAssetId:"demo-mc", mcName:"MC_scan.pdf"}}); return; }
+      if (r < 0.14) {
+        const att = "HALF_AM";
+        put(p, d, {attendance:att, state:OPT[att].state, outlet:"HQ", events:{clockIn:mkEv(p, att, d, 525 + rnd()*30), clockOut:mkEv(p, att, d, 780 + rnd()*20)}}); return;
+      }
+      const att = rnd() < 0.12 && p.baseAtt !== "HQ" ? "HQ" : p.baseAtt;
+      const lateish = rnd() < 0.18;
+      const inMin = lateish ? 541 + rnd()*30 : 515 + rnd()*24;
+      const lo = 735 + rnd()*45, li = lo + 40 + rnd()*(rnd() < .2 ? 45 : 22);
+      const outMin = 1075 + rnd()*40;
+      const noGps = rnd() < 0.07;
+      const ev = {clockIn:mkEv(p, att, d, inMin, noGps, lateish ? notes[Math.floor(rnd()*notes.length)] : ""), lunchOut:mkEv(p, att, d, lo), lunchIn:mkEv(p, att, d, li)};
+      if (rnd() > 0.04) ev.clockOut = mkEv(p, att, d, outMin, false, rnd() < .1 ? "Stayed back for outlet closing check" : "");
+      put(p, d, {attendance:att, state:OPT[att].state, outlet: OPT[att].needs ? p.base : "", events:ev});
+    });
+  }
+  // sample leave requests: every leave day above gets an approved request, plus some pending / upcoming / rejected
+  const nextWds = (n, skip = 0) => { const out = []; for (let off = 1; out.length < n + skip && off < 60; off++) { const d = addDays(today, off), wd = keyDate(d).getUTCDay(); if (wd && wd !== 6 && !DEFAULT_HOLIDAYS.some(h => h.date === d && h.where === "all")) out.push(d); } return out.slice(skip); };
+  const lvReq = (p, from, to, days, type, reason, status, extra) => { const id = `${p.email}__${from}__lv${Object.keys(seed).length}`;
+    seed["leaveRequests/" + id] = {id, internId:p.email, name:p.name, dept:p.dept, sup:p.sup, type, kind: type === "Medical" ? "mc" : "leave", from, to, days, reason, status, createdAt: from <= today ? ts(from, 470) : ts(addDays(today, -1), 600), ...(status !== "pending" ? {decidedAt: ts(addDays(today, -1), 660), approvedDays: status === "approved" ? days : undefined} : {}), ...extra};
+    if (seed["leaveRequests/" + id].approvedDays === undefined) delete seed["leaveRequests/" + id].approvedDays;
+    return id; };
+  Object.keys(seed).filter(k => k.startsWith("records/") && seed[k].leave).forEach(k => { const r = seed[k], p = people.find(x => x.email === r.internId);
+    r.leave.requestId = lvReq(p, r.date, r.date, [r.date], r.leave.type, r.leave.reason, "approved", {mcAssetId: r.leave.mcAssetId, mcName: r.leave.mcName}); r.leave.approvedAt = ts(r.date, 500); });
+  const dn = nextWds(3, 2); lvReq(people[2], dn[0], dn[2], dn, "Annual", "Family trip to Ipoh for my cousin's wedding.", "pending");
+  const an = nextWds(1, 6); lvReq(people[1], an[0], an[0], an, "University", "Final exam at university, 2 PM.", "pending");
+  if (expectedOn(seed["accounts/" + people[4].email], today) && !seed[`records/${people[4].email}__${today}`]) lvReq(people[4], today, today, [today], "Emergency", "Grandmother admitted to Penang Hospital this morning, I'm with family.", "pending");
+  const sn = nextWds(1, 4); seed[`records/${people[0].email}__${sn[0]}`] = {internId:people[0].email, name:people[0].name, dept:people[0].dept, supervisor:people[0].sup, date:sn[0], createdAt:Date.now(), updatedAt:Date.now(), attendance:"LEAVE", state:"Leave", outlet:"", events:{}, leave:{kind:"leave", type:"University", reason:"Group project presentation at university.", submittedAt:ts(addDays(today, -2), 600), approvedAt:ts(addDays(today, -1), 660)}};
+  seed[`records/${people[0].email}__${sn[0]}`].leave.requestId = lvReq(people[0], sn[0], sn[0], sn, "University", "Group project presentation at university.", "approved", {decisionNote:"Approved, all the best!"});
+  const cn = nextWds(5, 8); lvReq(people[5], cn[0], cn[4], cn, "Annual", "Holiday in Bangkok with friends.", "rejected", {decisionNote:"Clashes with the Southkey outlet launch week. Could you pick the week after?"});
+
+  // sample correction requests
+  const wds = []; for (let off = -1; wds.length < 6; off--) { const d = addDays(today, off), wd = keyDate(d).getUTCDay(); if (wd && wd !== 6) wds.push(d); }
+  const recOf = (p, d) => seed[`records/${p.email}__${d}`];
+  const mkCorr = (p, d, changes, reason, extra) => {
+    const r = recOf(p, d), cur = {}; KEYS.forEach(k => cur[k] = r && r.events && r.events[k] ? r.events[k].t : null);
+    const id = `${p.email}__${d}__demo${Object.keys(seed).length}`;
+    seed["corrections/" + id] = {id, internId:p.email, name:p.name, dept:p.dept, sup:p.sup, date:d, changes, current:cur, reason, newDay:!r, attendance: r ? r.attendance : p.baseAtt, outlet: r ? r.outlet : p.base, status:"pending", createdAt:ts(addDays(today, 0), 8*60 + Object.keys(seed).length % 50), ...extra};
+  };
+  const work = (p, d, att) => { const ex = recOf(p, d); if (ex && !ex.leave && ex.events && ex.events.clockIn && ex.events.lunchIn && ex.events.clockOut) return ex; put(p, d, {attendance:att, state:OPT[att].state, outlet: OPT[att].needs ? p.base : "", events:{clockIn:mkEv(p, att, d, 528), lunchOut:mkEv(p, att, d, 750), lunchIn:mkEv(p, att, d, 805), clockOut:mkEv(p, att, d, 1085)}}); return recOf(p, d); };
+  // 1) Daniel forgot to clock out yesterday (pending)
+  const dRec = work(people[2], wds[0], people[2].baseAtt); delete dRec.events.clockOut;
+  mkCorr(people[2], wds[0], {clockOut:"18:12"}, "Forgot to clock out after helping with the closing stock count. Left at 6:12 PM, outlet manager Jason can confirm.");
+  // 2) Harith's clock-in was late because the page wouldn't load (pending)
+  work(people[4], wds[1], people[4].baseAtt).events.clockIn.t = ts(wds[1], 572);
+  mkCorr(people[4], wds[1], {clockIn:"08:54"}, "Arrived 8:50 but the page wouldn't load on the outlet Wi-Fi until 9:32. Screenshot of my Grab drop-off time available.");
+  // 3) Priya missed a whole day's stamps (pending, new day)
+  delete seed[`records/${people[3].email}__${wds[2]}`];
+  mkCorr(people[3], wds[2], {clockIn:"08:47", lunchOut:"12:30", lunchIn:"13:25", clockOut:"18:02"}, "Phone died in the morning and I forgot to stamp all day. Was at HQ for the month-end closing with the finance team.");
+  // 4) demo intern: approved earlier (record already corrected, with history)
+  const sRec = work(people[0], wds[3], people[0].baseAtt), oldLI = sRec.events.lunchIn.t, newLI = ts(wds[3], 815);
+  sRec.events.lunchIn = {...sRec.events.lunchIn, t:newLI, corrected:true, originalT:oldLI};
+  if (sRec.events.clockOut && sRec.events.clockOut.t <= newLI) sRec.events.clockOut.t = ts(wds[3], 1090);
+  sRec.history = [{at:ts(wds[2], 600), action:"approved", reason:"Stamped Lunch In late, I was already back at my desk at 1:35 PM.", changes:{lunchIn:{from:oldLI, to:newLI}}}];
+  mkCorr(people[0], wds[3], {lunchIn:"13:35"}, "Stamped Lunch In late, I was already back at my desk at 1:35 PM.", {status:"approved", decidedAt:ts(wds[2], 600), decisionNote:"OK, confirmed with Farah.", current:{clockIn:sRec.events.clockIn.t, lunchOut:sRec.events.lunchOut.t, lunchIn:oldLI, clockOut:sRec.events.clockOut ? sRec.events.clockOut.t : null}});
+  // 5) Chloe: rejected
+  work(people[5], wds[4], people[5].baseAtt);
+  mkCorr(people[5], wds[4], {clockIn:"08:30"}, "Please change my clock in to 8:30.", {status:"rejected", decidedAt:ts(wds[3], 620), decisionNote:"No reason given and GPS shows you arrived at 8:58. Please resend with details if this is wrong."});
+  return {seed, me: seed["accounts/" + people[0].email]};
+}
+
+function stopAllSubs(){
+  [unsubToday, unsubMine, unsubAll, unsubAccts, unsubSettings, unsubMyCorr, unsubAllCorr, unsubTodayAll, unsubMyLeave, unsubAllLeave, unsubInv, unsubAdminPin].forEach(u => { try { u && u(); } catch(e){} });
+  unsubToday = unsubMine = unsubAll = unsubAccts = unsubSettings = unsubMyCorr = unsubAllCorr = unsubTodayAll = unsubMyLeave = unsubAllLeave = unsubInv = unsubAdminPin = null; invites = []; adminPin = null; todayAll = []; myLeave = []; allLeave = [];
+  todayRec = null; myRecs = []; allRecs = []; accounts = []; myCorr = []; allCorr = []; todayLoaded = false;
+  $("#corrCard").classList.add("hide");
+}
+function enterDemo(){
+  if (demo) return;
+  stopAllSubs();
+  realDb = db; realAssets = assets; realBanner = dbBanner;
+  demo = true;
+  const {seed, me} = buildDemo();
+  db = makeMemDb(seed);
+  assets = {upload: async f => ({id:"demo-" + Date.now(), contentType:f.type, sizeBytes:f.size})};
+  realDownloads = downloads; downloads = downloads || blobDownloads;
+  dbBanner = `🧪 <b>Demo mode</b>: sample data only, nothing is saved or seen by anyone else. <button type="button" class="link" id="exitDemo">Exit demo</button>`;
+  banner(dbBanner);
+  subscribeSettings();
+  supUnlocked = true;
+  $("#fFrom").value = weekStart(today); $("#fTo").value = today;
+  showLoading(false);
+  signedIn(me);
+  subscribeAll(); subscribeAccounts(); subscribeAllCorr(); subscribeTodayAll(); subscribeAllLeave(); subscribeInvites(); subscribeAdminPin();
+  toast("Demo mode on. Try the Clock, My Log and Admin tabs.");
+}
+function exitDemo(){
+  if (!demo) return;
+  stopAllSubs();
+  demo = false; db = realDb; assets = realAssets; dbBanner = realBanner;
+  supUnlocked = false; session = null; profile = null;
+  banner(dbBanner);
+  settings = {...DEFAULTS};
+  $("#att").value = ""; $("#outlet").value = ""; touchedForm = false;
+  if (FB) handleAuth(fbUser); else { setMode("in"); showAuth(); }
+  showTab("clock"); renderAll();
+  toast("Demo closed");
+}
+document.addEventListener("click", e => { if (!e.target.closest) return; if (e.target.closest(".demo-btn")) enterDemo(); if (e.target.closest("#exitDemo")) exitDemo(); });
+
+/* label table cells so they read as cards on phones */
+function labelTable(tb){
+  const ths = [...tb.closest("table").querySelectorAll("thead th")].map(t => t.textContent.trim());
+  tb.querySelectorAll(":scope > tr").forEach(tr => { if (tr.classList.contains("detail")) return; [...tr.children].forEach((td, i) => td.setAttribute("data-l", td.colSpan > 1 ? "" : (ths[i] || ""))); });
+}
+["#logBody","#supBody","#acctBody"].forEach(sel => { const tb = $(sel); if (tb) new MutationObserver(() => labelTable(tb)).observe(tb, {childList:true}); });
+
+/* ---------- boot ---------- */
+setMode("in");
+renderClock();
+
+(async function init(){
+  showLoading(true);
+  const fb = await Promise.race([window.fbReady, new Promise(r => setTimeout(() => r({ok:false, reason:"timeout"}), 12000))]);
+  if (!fb || !fb.ok) {
+    dbBanner = fb && fb.reason === "config" ? "⚙️ This site isn't connected to Firebase yet. You can still explore the demo below." : "⚠️ Can't connect to the attendance system. Check your internet connection and reload.";
+    banner(dbBanner); setMode("in"); showAuth(); renderAll(); return;
+  }
+  FB = fb; db = fb.db;
+  // live site: the demo only appears with ?demo in the address
+  if (!new URLSearchParams(location.search).has("demo")) $$(".demo-wrap").forEach(el => el.remove());
+  assets = mcStore(); downloads = blobDownloads;
+  user = {canEdit: () => isAdminUser, isOwner: () => isAdminUser, id: async () => fbUser ? fbUser.uid : null};
+  fb.onAuth(u => { handleAuth(u); });
+})();
+
+// MC files are compressed and stored in Firestore (no paid Storage bucket needed)
+function readAsDataURL(file){ return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); }); }
+async function compressImage(file, maxDim, q){
+  const url = await readAsDataURL(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+  const sc = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const c = document.createElement("canvas"); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  let out = c.toDataURL("image/jpeg", q);
+  if (out.length > 900000) out = c.toDataURL("image/jpeg", 0.5);
+  return out;
+}
+function mcStore(){ return { upload: async file => {
+  let data, type = file.type || "application/octet-stream";
+  if (type.startsWith("image/")) { data = await compressImage(file, 1400, 0.72); type = "image/jpeg"; }
+  else { if (file.size > 700 * 1024) throw {code:"too_big_pdf"}; data = await readAsDataURL(file); }
+  if (data.length > 950000) throw {code:"too_big_pdf"};
+  const ref = db.collection("mcfiles").doc();
+  await ref.set({internId:profile.id, name:file.name, type, data, createdAt:Date.now()});
+  return {id:ref.id, contentType:type};
+}}; }
+document.addEventListener("click", async e => {
+  const b = e.target.closest && e.target.closest("[data-mc]"); if (!b) return;
+  e.stopPropagation();
+  const w = window.open("", "_blank");
+  try {
+    const sn = await db.doc("mcfiles/" + b.dataset.mc).get();
+    if (!sn.exists) { if (w) w.close(); toast("MC file not found"); return; }
+    const d = sn.data(); const blob = await (await fetch(d.data)).blob(); const url = URL.createObjectURL(blob);
+    if (w) w.location = url; else location.href = url;
+  } catch(er){ if (w) w.close(); toast("Couldn't open the MC file"); }
+});
+const blobDownloads = { save: async ({filename, data}) => {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], {type:"text/csv;charset=utf-8"})); a.download = filename || "export.csv";
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}};
+
+let adminPin = null, unsubAdminPin = null;
+function subscribeAdminPin(){
+  if (unsubAdminPin || !db || !canEdit()) return;
+  unsubAdminPin = db.doc("config/adminPin").onSnapshot(s => {
+    adminPin = s.exists ? s.data() : null;
+    const saved = sess.get("usp_sup");
+    if (adminPin && adminPin.pinHash && saved === adminPin.pinHash && !supUnlocked) supUnlocked = true;
+    if (supUnlocked && adminPin && adminPin.pinHash && saved !== adminPin.pinHash) supUnlocked = false;
+    fillSettingsForm();
+    if (!$("#tab-sup").classList.contains("hide")) renderGate();
+  }, () => {});
+}
+function subscribeSettings(){
+  if (unsubSettings) { unsubSettings(); unsubSettings = null; }
+  if (!db) return;
+  unsubSettings = db.doc("config/settings").onSnapshot(s => {
+    settings = {...DEFAULTS, ...(s.exists ? s.data() : {})};
+    fillSettingsForm(); renderAll();
+    if (!$("#tab-sup").classList.contains("hide")) renderGate();
+  }, () => {});
+}
+})();
+</script>
+</body>
+</html>

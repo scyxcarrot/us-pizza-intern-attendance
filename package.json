@@ -1,0 +1,9 @@
+{
+  "name": "usp-attendance",
+  "private": true,
+  "description": "US Pizza Malaysia intern attendance (clock in/out, lunch, leave, corrections)",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "firebase-admin": "^12.1.0"
+  }
+}
